@@ -1,0 +1,10 @@
+VAR foo SEND
+
+IF foo COMP 1
+    HUD_JAUGE 1
+    HUD_DIGIT 1
+    IF foo DIFF 2
+        HUD_DIGIT_OFF
+    END_IF
+    HUD_JAUGE 1
+END_IF
