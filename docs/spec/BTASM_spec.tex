@@ -148,7 +148,8 @@ lowercase letter and can contain alphanumeric charaters and the underscore chara
 
 \subsection{UbiSoft-style}
 UbiSoft-style BTASM source files are very simple in nature.  They consist of:
-\begin{itemize} 
+\begin{itemize}
+\item A resource block 
 \item A variable declaration block
 \item Optional function declarations
 \item A required initial state
@@ -156,6 +157,22 @@ UbiSoft-style BTASM source files are very simple in nature.  They consist of:
 \end{itemize}
 
 These parts of a source file must appear in this order in an UbiSoft-style BTASM file.  
+\\\\
+The resource block never appears in the Ubisoft-style BTASM files -- it is instead generated from
+the rest of the source file and prepended to the beginning of the bytecode.  The resource block is 
+a list of all the sound and animation resources that the gun uses for this program.  They appear in
+the order of their first appearance in the file, ""but this is not necessary  (is it?).**  
+The block is preceded by a byte which lists how many resources there are in this file.  A simple
+bytecode may only need three or four sound/animation resources, while a complicated bytecode may use
+twenty or thirty.  **While it is possible to use at least twenty, the maximum possible number is 
+not known.**  
+
+It is essential to note that, while these resources are represented in the source files with 
+particular names that do not vary from file to file, the integer values that represent these 
+different resources do vary, depending on the order that they appear in the resource block.  A 
+convenient way to think about it is a simple map, where the values are incremented by one each time
+a new key is inserted.  Therefore, the particular mapping of the sound DEAD might not be the same 
+between two source files, but it will not change within a bytecode file..
 
 The variable declaration block consists of a newline-separated list of variable expressions
 which define a variable by name and determine its relationship to the GM.  All variables are 
