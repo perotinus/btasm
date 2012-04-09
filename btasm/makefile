@@ -1,5 +1,5 @@
-btasm: lex btasm.c map.c toktab
-	gcc -g3 -lfl -o lexer lex.yy.c y.tab.c btasm.c map.c
+btasm: lex btasm.c map.c toktab graph.c
+	gcc -g3 -lfl -o lexer lex.yy.c y.tab.c btasm.c map.c graph.c
 
 yacc: btasm_ubi.y
 	yacc -d btasm_ubi.y

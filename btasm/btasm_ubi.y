@@ -8,19 +8,17 @@
 #include "btasm.h"
 #include "map.h"
 
-#include "toktab.h"
-
 node *cr_node(int type, int nops, ...);
 node *int_node(int i);
 node *id_node(char *s);
-char *graph(node *n);
-char *gen_node();
 void yyerror(char *s);
 
 map vmap; 
 map fmap; 
 map rmap; 
 map smap;
+
+node *stree;
 
 %}
 
@@ -55,9 +53,7 @@ map smap;
 %%
 
 program: 
-    stmt_list           {   printf("digraph syntax_tree {\n"); 
-                            graph($$); printf("}"); exit(0); 
-                        }
+    stmt_list           {stree = $$;}
 
 stmt_list:  
       stmt              {$$ = $1;}
@@ -193,44 +189,4 @@ void yyerror(char *s)
     fprintf(stderr, "%s\n", s); 
 }       
 
-char *graph(node *n)
-{
-    
-    char *dotName = gen_node();
-    
-    filltoktab(); 
 
-
-    switch (n->nodeType) {
-        
-        case INT:   
-                    printf("%s [label=\"INT_%d\"]\n", dotName, n->intVal);
-                    break; 
-        case ID:    
-                    printf("%s [label=\"ID_%s\"]\n", dotName, n->strVal);
-                    break;
-        default:    0; 
-                    int i=0;
-                    for (i=0; i<n->nops; i++) {
-                        char *cn = graph(n->children[i]);
-                        printf("%s -> %s\n", dotName, cn);
-                    }
-                    printf("%s [label=\"%s\"]\n", dotName, 
-                                                toktab[n->nodeType]); 
-                    break;
-    
-    }
-
-    return dotName;
-
-}
-
-char *gen_node() 
-{
-    static int curr=0;
-    
-    //BAD - can only support 100,000 nodes!
-    char *buf = malloc(5*sizeof(char));
-    sprintf(buf, "%d", curr++);
-    return buf;
-}
