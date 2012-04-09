@@ -1,6 +1,6 @@
 
 
-VAR Nb_lifepoint	SEND
+VAR nb_lifepoint	SEND
 VAR nb_ammo		SEND	
 VAR nb_clip		SEND
 VAR nb_shoot		SEND

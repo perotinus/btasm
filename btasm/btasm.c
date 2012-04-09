@@ -62,22 +62,26 @@ int main(int argc, char ** argv) {
 
 
     //Process the "action" arguments
-    char *arg = nextOpt();
+    char *arg;
 
-    //-g <fname>
-    if (!strcmp("-g",arg)) {
-        char *fname = nextOpt();
-        FILE *f = fopen(fname,"w");
-        if (!f) {
-            fprintf(stderr, "btasm: cannot open file");
-            die(fname);
+    while (arg = nextOpt()) {
+
+        //-g <fname>
+        if (!strcmp("-g",arg)) {
+            char *fname = nextOpt();
+            FILE *f = fopen(fname,"w");
+            if (!f) {
+                fprintf(stderr, "btasm: cannot open file");
+                die(fname);
+            }
+
+            fprintf(f, "digraph syntax_tree {\n");
+            graph(stree, f);
+            fprintf(f, "}");
+
+            fclose(f);
         }
 
-        fprintf(f, "digraph syntax_tree {\n");
-        graph(stree, f);
-        fprintf(f, "}");
-
-        fclose(f);
     }
 
     return 0;

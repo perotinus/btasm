@@ -31,9 +31,9 @@ void error(char *msg)
 
  /* Declarations */ 
 VAR                     { return VAR; }
-CONFIG                  { yylval.iVal = 3; return VARATTR; }
-SEND                    { yylval.iVal = 1; return VARATTR; }
-RECEIVE                 { yylval.iVal = 2; return VARATTR; }
+CONFIG                  { yylval.iVal = kCONFIG; return VARATTR; }
+SEND                    { yylval.iVal = kSEND; return VARATTR; }
+RECEIVE                 { yylval.iVal = kRECEIVE; return VARATTR; }
 FUNCTION                { return FUN; }
 STATE                   { return STATE; }
 FIRST_STATE             { return FIRST_STATE; }
@@ -42,9 +42,10 @@ EVENT                   { return EVENT; }
 
  /* Conditional */
 IF                      { return IF; }
-COMP                    { yylval.iVal = 2; return COMP; }
-DIFF                    { yylval.iVal = 3; return COMP; }
-SUP                     { yylval.iVal = 0; return COMP; }
+COMP                    { yylval.iVal = kCOMP; return COMP; }
+DIFF                    { yylval.iVal = kDIFF; return COMP; }
+SUP                     { yylval.iVal = kSUP; return COMP; }
+INF                     { yylval.iVal = kINF; return COMP; }
 ELSE                    { return ELSE; }
 END_IF                  { return END_IF; }
 
@@ -53,18 +54,19 @@ GOTO                    { return GOTO; }
 END_FUNCTION            { return END_FUNCTION; }
 END_STATE               { return END_STATE; }
 END_EVENT               { return END_EVENT; }
- /*TIMER*/
-
  /* Event types */
-BUTTON_1_JUST_PRESSED   { yylval.iVal = 0; return ETYPE; } 
-BUTTON_2_JUST_PRESSED   { yylval.iVal = 1; return ETYPE; } 
-BUTTON_3_JUST_PRESSED   { yylval.iVal = 2; return ETYPE; }
-TIMER                   { yylval.iVal = 9; return ETYPE; }
-TICK                    { yylval.iVal = 10; return ETYPE; }
-HIT                     { yylval.iVal = 11; return ETYPE; }
-ENTER_STATE             { yylval.iVal = 13; return ETYPE; }
-ANIM_FINISHED           { yylval.iVal = 14; return ETYPE; }
-DATA_CHANGE             { yylval.iVal = 15; return ETYPE; }
+BUTTON_1_JUST_PRESSED   {   yylval.iVal = kBUTTON_1_JUST_PRESSED; 
+                            return ETYPE; } 
+BUTTON_2_JUST_PRESSED   {   yylval.iVal = kBUTTON_2_JUST_PRESSED; 
+                            return ETYPE; } 
+BUTTON_3_JUST_PRESSED   {   yylval.iVal = kBUTTON_3_JUST_PRESSED; 
+                            return ETYPE; }
+TIMER                   { yylval.iVal = kTIMER; return TIMER; }
+TICK                    { yylval.iVal = kTICK; return ETYPE; }
+HIT                     { yylval.iVal = kHIT; return ETYPE; }
+ENTER_STATE             { yylval.iVal = kENTER_STATE; return ETYPE; }
+ANIM_FINISHED           { yylval.iVal = kANIM_FINISHED; return ETYPE; }
+DATA_CHANGE             { yylval.iVal = kDATA_CHANGE; return ETYPE; }
              
  /* Mutation */
 SET                     { return SET; }
@@ -80,16 +82,16 @@ HUD_JAUGE               { return HUD_JAUGE; }
 HUD_JAUGE_BLINK         { return HUD_JAUGE_BLINK; }
 HUD_ICON_ON             { return HUD_ICON_ON; }
 HUD_ICON_OFF            { return HUD_ICON_OFF; }
-BULLET                  { yylval.iVal = 3; return ITYPE; }
-LIFE                    { yylval.iVal = 2; return ITYPE; }
+BULLET                  { yylval.iVal = kBULLET; return ITYPE; }
+LIFE                    { yylval.iVal = kLIFE; return ITYPE; }
+GOAL                    { yylval.iVal = kGOAL; return ITYPE; }
 LED_ON                  { return LED_ON; }
 LED_OFF                 { return LED_OFF; }
 LED_INFINITE            { return LED_INFINITE; }
 ANIM                    { return ANIM; }
 ANIM_OFF                { return ANIM_OFF; }
-ASHT                    { return RTYPE; }
-ARAM                    { return RTYPE; }
-AMED                    { return RTYPE; }
+ANIM_LOOP               { return ANIM_LOOP; }
+
 
 FLASH_ORANGE            { return FLASH_ORANGE; }
 FLASH_GREEN             { return FLASH_GREEN; }
@@ -100,44 +102,61 @@ FLASH_RED               { return FLASH_RED; }
 MOTOR                   { return MOTOR; }
 SND                     { return SND; }
 SND_PRIO                { return SND_PRIO; }
+IR                      { return IR; }
 
  /* Sounds */
-HURT                    { return RTYPE; }
-ASSIST_SCANAMMO         { return RTYPE; }
-SCAN_BAD                { return RTYPE; }
-SCAN_GOOD               { return RTYPE; }
-BIP                     { return RTYPE; }
-RELOAD_CLIP             { return RTYPE; }
-RELOAD                  { return RTYPE; }
-OK                      { return RTYPE; }
-ASSIST_BACKINGAME       { return RTYPE; }
-RESPAWN                 { return RTYPE; }
-START                   { return RTYPE; }
-ASSIST_SCANLIFE         { return RTYPE; }
-DEAD                    { return RTYPE; }
-SG01                    { return RTYPE; }
-SG02                    { return RTYPE; }
-SG03                    { return RTYPE; }
-SG04                    { return RTYPE; }
-SC11                    { return RTYPE; }
-ASSIST_BASE1            { return RTYPE; }
-ASSIST_BASE2            { return RTYPE; }
-ASSIST_BASE3            { return RTYPE; }
-ASSIST_BASE4            { return RTYPE; }
-ASSIST_UBICONNECT       { return RTYPE; }
-SHOOT                   { return RTYPE; }
-EMPTY                   { return RTYPE; }
-
-
+HURT                    { yylval.iVal = kbkHURT; return RTYPE; }
+ASSIST_SCANAMMO         { yylval.iVal = kbkASSIST_SCANAMMO; return RTYPE; }
+SCAN_BAD                { yylval.iVal = kbkSCAN_BAD;  return RTYPE; }
+SCAN_GOOD               { yylval.iVal = kbkSCAN_GOOD;  return RTYPE; }
+BIP                     { yylval.iVal = kbkBIP;  return RTYPE; }
+RELOAD_CLIP             { yylval.iVal = kbkRELOAD_CLIP;  return RTYPE; }
+RELOAD                  { yylval.iVal = kbkRELOAD;  return RTYPE; }
+OK                      { yylval.iVal = kbkOK;  return RTYPE; }
+ASSIST_BACKINGAME       { yylval.iVal = kbkASSIST_BACKINGAME;return RTYPE; }
+RESPAWN                 { yylval.iVal = kbkRESPAWN;  return RTYPE; }
+START                   { yylval.iVal = kbkSTART; return RTYPE; }
+ASSIST_SCANLIFE         { yylval.iVal = kbkASSIST_SCANLIFE; return RTYPE; }
+DEAD                    { yylval.iVal = kbkDEAD; return RTYPE; }
+SG01                    { yylval.iVal = kbkSG01; return RTYPE; }
+SG02                    { yylval.iVal = kbkSG02; return RTYPE; }
+SG03                    { yylval.iVal = kbkSG03; return RTYPE; }
+SG04                    { yylval.iVal = kbkSG04; return RTYPE; }
+SC11                    { yylval.iVal = kbkSC11; return RTYPE; }
+ASSIST_BASE1            { yylval.iVal = kbkASSIST_BASE1; return RTYPE; }
+ASSIST_BASE2            { yylval.iVal = kbkASSIST_BASE2; return RTYPE; }
+ASSIST_BASE3            { yylval.iVal = kbkASSIST_BASE3; return RTYPE; }
+ASSIST_BASE4            { yylval.iVal = kbkASSIST_BASE4; return RTYPE; }
+ASSIST_UBICONNECT       { yylval.iVal = kbkASSIST_UBICONNECT; return RTYPE; }
+SHOOT                   { yylval.iVal = kbkSHOOT; return RTYPE; }
+EMPTY                   { yylval.iVal = kbkEMPTY; return RTYPE; }
+ASHT                    { yylval.iVal = kbkASHT; return RTYPE; }
+ARAM                    { yylval.iVal = kbkARAM; return RTYPE; }
+AMED                    { yylval.iVal = kbkAMED; return RTYPE; }
+AOUT                    { yylval.iVal = kbkAOUT; return RTYPE; }
+AGB1                    { yylval.iVal = kbkAGB1; return RTYPE; }
+AGB2                    { yylval.iVal = kbkAGB2; return RTYPE; }
+AGB3                    { yylval.iVal = kbkAGB3; return RTYPE; }
+AGB4                    { yylval.iVal = kbkAGB4; return RTYPE; }
+AUBI                    { yylval.iVal = kbkAUBI; return RTYPE; }
 
  /* Vest */
-HARNESS                 { return HARNESS; }
+SET_HARNESS             { return SET_HARNESS; }
+
+ /* Team */
+SET_TEAM                { return SET_TEAM; }
 
 
  /* RFID */
 RFID_SCAN               { return RFID_SCAN; }
 RFID_TYPE_MAJOR         { return RFID_TYPE_MAJOR; }
 RFID_TYPE_MINOR         { return RFID_TYPE_MINOR; }
+RFID_AMMO_PACK          { yylval.iVal = kRFID_AMMO_PACK; return INT; }
+RFID_AMMO1              { yylval.iVal = kRFID_AMMO1; return INT; }
+RFID_LIFE_PACK          { yylval.iVal = kRFID_LIFE_PACK; return INT; }
+RFID_BASE_PACK          { yylval.iVal = kRFID_BASE_PACK; return INT; }
+RFID_BASE1              { yylval.iVal = kRFID_BASE1; return INT; }
+
 
 [ \n\t]+                /* Ingore whitespace */
 
