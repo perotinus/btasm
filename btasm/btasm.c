@@ -140,7 +140,7 @@ void parse1(node *n)
     
     map m = vmap;
 
-    if (n->nodeType == STATE || n->nodeType == GOTO)
+    if (n->nodeType == STATE || n->nodeType == GOTO || n->nodeType == FIRST_STATE)
         m = smap;
     else if (n->nodeType == FUN || n->nodeType == CALL)
         m = fmap;
@@ -156,6 +156,7 @@ void parse1(node *n)
                     case FUN:
                     case CALL:   namespace = "function"; break;
                     case STATE:
+                    case FIRST_STATE:
                     case GOTO:  namespace = "state";    break;
                     default:    namespace = "variable"; break;
                 }

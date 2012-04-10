@@ -23,7 +23,7 @@ enum {  kBUTTON_1_JUST_PRESSED  = 0,
         kTIMER                  = 9,
         kTICK                   = 10,
         kHIT                    = 11,
-        kENTER_STATE            = 13,
+        kENTER_STATE            = 12,
         kANIM_FINISHED          = 14,
         kDATA_CHANGE            = 15
 };

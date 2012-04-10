@@ -163,6 +163,6 @@ RFID_BASE1              { yylval.iVal = kRFID_BASE1; return INT; }
  
  /*[A-Z]*                 { printf("%d:Unrecognized language keyword:%s\n",yylineno,yytext); }*/
  /*[A-Z0-9_][A-Za-z0-9_]* { printf("%d:Illegal identifier:%s\n", yylineno,yytext); } */
-.                       {printf("%d:Illegal character", yylineno); }
-
+ /*.                       {printf("%d:Illegal character\n", yylineno); }
+ */
 %%

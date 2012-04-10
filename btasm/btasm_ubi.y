@@ -40,7 +40,7 @@ node *stree;
         FUN END_FUNCTION IF ELSE END_IF VAR SEQ 
         HUD_JAUGE_BLINK CONFIG SEND RECEIVE LED_OFF
         LED_INFINITE ANIM_OFF SND_PRIO RFID_SCAN RFID_TYPE_MAJOR
-        RFID_TYPE_MINOR CALL ANIM_LOOP SET_TEAM
+        RFID_TYPE_MINOR CALL ANIM_LOOP SET_TEAM HUD_ICON
 
 %token <iVal> INT RTYPE COMP VARATTR ETYPE ITYPE TIMER DATA_CHANGE;
 %token <sVal> ID;
@@ -109,21 +109,21 @@ state_list:
       STATE id FIRST_STATE event_list END_STATE state_list
             { if (insert_map(smap, $2->strVal)==-1)
                 yyerror("error: state redefined");
-              node *s = cr_node(STATE, 3, $2, int_node(1), $4); 
+              node *s = cr_node(FIRST_STATE, 2, $2, $4); 
               $$ = cr_node(SEQ, 2, s, $6); }
     | STATE id event_list END_STATE state_list
             { if (insert_map(smap, $2->strVal)==-1)
                 yyerror("error: state redefined");
-              node *s = cr_node(STATE, 3, $2, int_node(0), $3); 
+              node *s = cr_node(STATE, 2, $2, $3); 
               $$ = cr_node(SEQ, 2, s, $5); }
     | STATE id FIRST_STATE event_list END_STATE 
             { if (insert_map(smap, $2->strVal)==-1)
                 yyerror("error: state redefined");
-              $$ = cr_node(STATE, 3, $2, int_node(1), $4); }
+              $$ = cr_node(FIRST_STATE, 2, $2, $4); }
     | STATE id event_list END_STATE
             { if (insert_map(smap, $2->strVal)==-1)
                 yyerror("error: state redefined");
-              $$ = cr_node(STATE, 3, $2, int_node(0), $3); }
+              $$ = cr_node(STATE, 2, $2, $3); }
 
 stmt_list:  
       stmt              {$$ = $1;}
@@ -143,19 +143,27 @@ stmt:
     | INC id            { $$ = cr_node(INC, 1, $2); }
     | DEC id            { $$ = cr_node(DEC, 1, $2); }
     //HUD/sound/motor/etc
-    | HUD_DIGIT INT         { $$ = cr_node(HUD_DIGIT, 1, int_node($2)); } 
-    | HUD_DIGIT id          { $$ = cr_node(HUD_DIGIT, 1, $2); } 
-    | HUD_DIGIT_BLINK INT   { $$ = cr_node( HUD_DIGIT_BLINK, 
-                                            1, int_node($2)  ); }
-    | HUD_DIGIT_BLINK id    { $$ = cr_node(HUD_DIGIT_BLINK,1,$2); } 
+    | HUD_DIGIT INT         { $$ = cr_node( HUD_DIGIT, 3, int_node(1), 
+                                            int_node($2), int_node(0)); } 
+    | HUD_DIGIT id          { $$ = cr_node( HUD_DIGIT, 3, int_node(0),
+                                            $2,           int_node(0)); } 
+    | HUD_DIGIT_BLINK INT   { $$ = cr_node( HUD_DIGIT, 3, int_node(1), 
+                                            int_node($2), int_node(1)); } 
+    | HUD_DIGIT_BLINK id    { $$ = cr_node( HUD_DIGIT, 3, int_node(0),
+                                            $2,           int_node(1)); } 
     | HUD_DIGIT_OFF         { $$ = cr_node(HUD_DIGIT_OFF, 0); }
-    | HUD_JAUGE INT         { $$ = cr_node(HUD_JAUGE, 1, int_node($2)); } 
-    | HUD_JAUGE id          { $$ = cr_node(HUD_JAUGE, 1, $2);  } 
-    | HUD_JAUGE_BLINK INT   { $$ = cr_node( HUD_JAUGE_BLINK, 
-                                            1, int_node($2) ); } 
-    | HUD_JAUGE_BLINK id    { $$ = cr_node(HUD_JAUGE_BLINK, 1, $2); } 
-    | HUD_ICON_ON ITYPE     { $$ = cr_node(HUD_ICON_ON, 1, int_node($2)); }
-    | HUD_ICON_OFF ITYPE    { $$ = cr_node(HUD_ICON_OFF,1, int_node($2)); }
+    | HUD_JAUGE INT         { $$ = cr_node( HUD_JAUGE, 3, int_node(1), 
+                                            int_node($2), int_node(0)); } 
+    | HUD_JAUGE id          { $$ = cr_node( HUD_JAUGE, 3, int_node(0), 
+                                            $2, int_node(0)); }
+    | HUD_JAUGE_BLINK INT   { $$ = cr_node( HUD_JAUGE, 3, int_node(1), 
+                                            $2, int_node(1)); }
+    | HUD_JAUGE_BLINK id    { $$ = cr_node( HUD_JAUGE, 3, int_node(0), 
+                                            $2, int_node(1)); }
+    | HUD_ICON_ON ITYPE     { $$ = cr_node( HUD_ICON, 3, int_node(1), 
+                                            int_node($2), int_node(0)); }
+    | HUD_ICON_OFF ITYPE    { $$ = cr_node( HUD_ICON, 3, int_node(0), 
+                                            int_node($2), int_node(0)); }
     | ANIM RTYPE            { if (res_loc > RES_COUNT) 
                                 yyerror("Too many resources.");
                               if (rmap[$2] == -1)
@@ -171,16 +179,19 @@ stmt:
                                 yyerror("Too many resources.");
                               if (rmap[$2] == -1)
                                 rmap[$2] = res_loc++;  
-                              $$ = cr_node(SND, 1, int_node($2)); }
+                              $$ = cr_node( SND, 2, int_node(0), 
+                                            int_node($2)); }
     | SND_PRIO RTYPE        { if (res_loc > RES_COUNT) 
                                 yyerror("Too many resources.");
                               if (rmap[$2] == -1)
                                 rmap[$2] = res_loc++;  
-                              $$ = cr_node(SND_PRIO, 1, int_node($2)); }
+                              $$ = cr_node( SND, 2, int_node(1), 
+                                            int_node($2)); }
     | LED_ON INT INT        { $$ =  cr_node(LED_ON, 2, 
                                     int_node($2), int_node($3)); }
     | LED_OFF               { $$ = cr_node(LED_OFF, 0); }
-    | LED_INFINITE INT      { $$ = cr_node(LED_INFINITE, 1,int_node($2)); }
+    | LED_INFINITE INT      { $$ = cr_node( LED_ON, 2, int_node($2),
+                                            int_node(0)); }
     | FLASH_ORANGE INT      { node *in = int_node($2);
                               node *n1 = cr_node(FLASH_RED,1,in);
                               node *n2 = cr_node(FLASH_GREEN,1,in);
