@@ -2,6 +2,7 @@
 //Simple map for variables
 //
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "map.h"
@@ -65,4 +66,32 @@ int lookup_map(map m, char *s)
     }
 }
     
+void dump_map(map m) 
+{
+    int i;
+    for (i=0; i<MAXLEN; i++) {
+        if (m[i] == NULL)
+            break;
+        printf("%-20s|%-5d\n", m[i], i);
+    }
+}
+
+void reverse_map(map m)
+{
+    int i;
+    char *t;
     
+    //Find number of elems
+    for (i=0; i<MAXLEN; i++) {
+        if (m[i] == NULL) {
+            i--; break;
+        }
+    }
+    int len = i;
+
+    for (i=0; i<(len+1)/2;i++) {
+        t = m[i];
+        m[i] = m[len-i];
+        m[len-i] = t;
+    }
+}

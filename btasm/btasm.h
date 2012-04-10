@@ -37,7 +37,12 @@ enum {  kbkHURT, kbkASSIST_SCANAMMO, kbkSCAN_BAD, kbkSCAN_GOOD, kbkBIP,
         kbkASSIST_BASE4, kbkASSIST_UBICONNECT, kbkSHOOT, kbkEMPTY, kbkASHT,
         kbkARAM, kbkAMED, kbkAOUT, kbkAGB1, kbkAGB2, kbkAGB3, kbkAGB4,
         kbkAUBI
-}; 
+};
+ 
+//REMEMBER TO UPDATE THIS AS RESOURCES ARE ADDED
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#define RES_COUNT 34
+
 
 //todo - need the correct numbers!!
 enum {
@@ -57,5 +62,37 @@ typedef struct node {
     struct node **children;
 } node;
 
+/**
+ * Create a node representing the integer i
+ * /param i Integer to create node for
+ * /return The created node
+ */
+node *int_node(int i);
 
+/**
+ * Create an ID node representing the string s
+ * /param s String to create node for
+ * /return The created node
+ */
+node *id_node(char *s);
+
+/**
+ * Create an arbitrary syntax tree node.
+ * /param type Type of the node
+ * /param nops Number of children nodes this node has
+ * /param ... Variable list child nodes
+ * /return The created node
+ */
+node *cr_node(int type, int nops, ...);
+
+/**
+ * Free the tree rooted at n
+ * /param n The root of the tree to be freed.
+ */
+void free_tree(node *n);
+
+//First parse.  Check and replace IDs.  Die if missing ID.
+void parse1(node *n);
+
+void reverse_imap(int *m);
 #endif
