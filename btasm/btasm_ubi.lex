@@ -25,9 +25,6 @@ void error(char *msg)
 %%
 
 
- /* ID/numbers */
-[a-z][a-zA-Z0-9_]*      { yylval.sVal = yytext; return ID; } //!
-[0-9]+                  { yylval.iVal = atoi(yytext); return INT; }
 
  /* Declarations */ 
 VAR                     { return VAR; }
@@ -66,7 +63,7 @@ TICK                    { yylval.iVal = kTICK; return ETYPE; }
 HIT                     { yylval.iVal = kHIT; return ETYPE; }
 ENTER_STATE             { yylval.iVal = kENTER_STATE; return ETYPE; }
 ANIM_FINISHED           { yylval.iVal = kANIM_FINISHED; return ETYPE; }
-DATA_CHANGE             { yylval.iVal = kDATA_CHANGE; return ETYPE; }
+DATA_CHANGE             { yylval.iVal = kDATA_CHANGE; return DATA_CHANGE; }
              
  /* Mutation */
 SET                     { return SET; }
@@ -160,7 +157,12 @@ RFID_BASE1              { yylval.iVal = kRFID_BASE1; return INT; }
 
 [ \n\t]+                /* Ingore whitespace */
 
-[A-Z]*                 { printf("%d:Unrecognized language keyword:%s\n",yylineno,yytext); }
-[A-Z0-9_][A-Za-z0-9_]* { printf("%d:Illegal identifier:%s\n", yylineno,yytext); }
+ /* ID/numbers */
+[0-9]+                  { yylval.iVal = atoi(yytext); return INT; }
+[a-zA-Z0-9_]*           { yylval.sVal = yytext; return ID; } //!
+ 
+ /*[A-Z]*                 { printf("%d:Unrecognized language keyword:%s\n",yylineno,yytext); }*/
+ /*[A-Z0-9_][A-Za-z0-9_]* { printf("%d:Illegal identifier:%s\n", yylineno,yytext); } */
+.                       {printf("%d:Illegal character", yylineno); }
 
 %%

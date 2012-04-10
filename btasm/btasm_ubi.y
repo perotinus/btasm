@@ -42,7 +42,7 @@ node *stree;
         LED_INFINITE ANIM_OFF SND_PRIO RFID_SCAN RFID_TYPE_MAJOR
         RFID_TYPE_MINOR CALL ANIM_LOOP SET_TEAM
 
-%token <iVal> INT RTYPE COMP VARATTR ETYPE ITYPE TIMER;
+%token <iVal> INT RTYPE COMP VARATTR ETYPE ITYPE TIMER DATA_CHANGE;
 %token <sVal> ID;
 %type <nPtr> program stmt stmt_list event_list branch id var_fn_st_list
              var_list fn_list state_list;
@@ -204,22 +204,41 @@ id:
 
 
 event_list: 
+    //Regular events
       EVENT ETYPE stmt_list END_EVENT             
             { $$ = cr_node(EVENT, 2, int_node($2), $3); } 
     | EVENT ETYPE stmt_list END_EVENT event_list 
             { node *e = cr_node(EVENT, 2, int_node($2), $3);
               $$ = cr_node(SEQ, 2, e, $5); }
+    //Timer event (TIMER keyword has two uses!)
     | EVENT TIMER stmt_list END_EVENT             
             { $$ = cr_node(EVENT, 2, int_node($2), $3); } 
     | EVENT TIMER stmt_list END_EVENT event_list 
             { node *e = cr_node(EVENT, 2, int_node($2), $3);
               $$ = cr_node(SEQ, 2, e, $5); }
+    //Data change event (has screwy syntax for some reason, but the
+    //syntax is not reflected in the byte code)
+    | EVENT DATA_CHANGE id stmt_list END_EVENT             
+            { $$ = cr_node(EVENT, 2, int_node($2), $4); } 
+    | EVENT DATA_CHANGE id stmt_list END_EVENT event_list 
+            { node *e = cr_node(EVENT, 2, int_node($2), $4);
+              $$ = cr_node(SEQ, 2, e, $6); }
+    //Deal with empty events...
     | EVENT ETYPE END_EVENT
-            { node *e = cr_node(EVENT, 1, int_node($2)); }
+            { $$ = cr_node(EVENT, 1, int_node($2)); }
     | EVENT ETYPE END_EVENT event_list 
             { node *e = cr_node(EVENT, 1, int_node($2));
               $$ = cr_node(SEQ, 2, e, $4); }
-
+    | EVENT TIMER END_EVENT
+            { $$ = cr_node(EVENT, 1, int_node($2)); }
+    | EVENT TIMER END_EVENT event_list 
+            { node *e = cr_node(EVENT, 1, int_node($2));
+              $$ = cr_node(SEQ, 2, e, $4); }
+    | EVENT DATA_CHANGE END_EVENT             
+            { $$ = cr_node(EVENT, 1, int_node($2)); } 
+    | EVENT DATA_CHANGE END_EVENT event_list 
+            { node *e = cr_node(EVENT, 1, int_node($2));
+              $$ = cr_node(SEQ, 2, e, $4); }
 
 branch:
       IF id COMP INT stmt_list END_IF   

@@ -11,6 +11,11 @@ toktab: toktab.h_tmpl toktab.pl yacc
 	cp toktab.h_tmpl toktab.h
 	perl toktab.pl
 
+test: test.pl btasm
+	perl test.pl
+
+.PHONY: test
+
 ###############################
 dot: graph.gv
 	dotty graph.gv
