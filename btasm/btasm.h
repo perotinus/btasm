@@ -94,5 +94,8 @@ void free_tree(node *n);
 //First parse.  Check and replace IDs.  Die if missing ID.
 void parse1(node *n);
 
+//Second parse.  Replace resource numbers.  Die if missing resource.
+void parse2(node *n);
+
 void reverse_imap(int *m);
 #endif

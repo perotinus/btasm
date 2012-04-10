@@ -70,7 +70,7 @@ int main(int argc, char ** argv) {
     reverse_map(vmap);
     reverse_map(fmap);
     reverse_map(smap);
-    reverse_imap(rmap);
+    //reverse_imap(rmap);
 
     //Process the "action" arguments
     char *arg;
@@ -105,6 +105,8 @@ int main(int argc, char ** argv) {
         //-1 (run parse stage 1)
         } else if (!strcmp("-1", arg)) {
             parse1(stree);
+        } else if (!strcmp("-2", arg)) {
+            parse2(stree);
         }
 
     }
@@ -170,6 +172,39 @@ void parse1(node *n)
             n->children[i] = new;
         } else if (n->children[i]->nodeType != INT) {
             parse1(n->children[i]);
+        }
+    }
+}
+
+//Second-stage parse.  Change all the resource values
+//to the actual values that will be used on the device
+//rather than the bookkeeping values used in the parser.
+void parse2(node *n)
+{
+    int i;
+
+    for (i=0; i < n->nops; i++) {
+        if (n->children[i]->nodeType == SND  || 
+            n->children[i]->nodeType == ANIM ||
+            n->children[i]->nodeType == ANIM_LOOP )
+        {
+    
+            node *rnode = n->children[i];
+            int rchild = (rnode->nodeType == SND) ? 1 : 0;
+            
+            //Bookkeeping value for the resource
+            int res_bkval = rnode->children[rchild]->intVal;
+
+            //Not found in table
+            if (rmap[res_bkval] == -1) {
+                fprintf(stderr, "parse2: Resource %d not found in map", 
+                        res_bkval);
+            } else {
+                rnode->children[rchild]->intVal = rmap[res_bkval];
+            }
+ 
+        } else if (n->children[i]->nodeType != INT) {
+            parse2(n->children[i]);
         }
     }
 }
@@ -243,6 +278,6 @@ void reverse_imap(int *m)
     }
 
     for (i=0; i<=max; i++) {
-        m[temp[max-i]] = i;
+        m[temp[i]] = max-i;
     }
 }
