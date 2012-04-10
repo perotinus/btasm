@@ -1,4 +1,4 @@
-\documentclass[12pt,a5paper]{scrbook}
+\documentclass[12pt,a4paper]{scrbook}
 
 %
 %Header
@@ -7,6 +7,7 @@
 %\setlength{\headheight}{15.2pt}
 \usepackage{scrpage2}
 \usepackage{listings}
+\usepackage{geometry}
 \lstset{frame=single, basicstyle=\ttfamily, tabsize=4}
 \cfoot{}
 \pagestyle{empty}
@@ -20,7 +21,7 @@
 
 \title {BTASM language specification}
 \date {Revision 0 - April 4, 2012}
-\author {Jonathan MacMillan (jonathan.macmillan@yale.edu)}
+\author {Jonathan MacMillan \\(jonathan.macmillan@yale.edu)}
 \maketitle
 
 \frontmatter
@@ -334,19 +335,19 @@ Declares a function
 NB - this is an overloaded instruction that is also used for function calls with a different type
 signature
 
-\subsubsection{0xd2 - STATE FIRST\_STATE [LONGINT] [STATEIDX]}
+\subsubsection{0xd2 - STATE FIRST\_STATE [STATEIDX] [LONGINT]}
 Declares a new (initial) state
 \begin{itemize}
-\item A1 = size of the state in bytes (not counting declaration)
-\item A2 = state identifier (non-repeated ascending integers)
+\item A1 = state identifier (non-repeated ascending integers)
+\item A2 = size of the state in bytes (not counting declaration)
 \end{itemize}
 NB - There can be only one initial state per program.
 
-\subsubsection{0xc7 - STATE [LONGINT] [STATEIDX]}
+\subsubsection{0xc7 - STATE [STATEIDX] [LONGINT]}
 Declares a new (non-initial) state
 \begin{itemize}
-\item A1 = size of the state in bytes (not counting declaration)
-\item A2 = state identifier (non-repeated ascending integers)
+\item A1 = state identifier (non-repeated ascending integers)
+\item A2 = size of the state in bytes (not counting declaration)
 \end{itemize}
 NB - Though there are different bytecodes for the initial state and a regular state,
 the state identifiers must be unique for each different state.
@@ -361,7 +362,7 @@ Event types:
 \item \texttt{0x09 = TIMER}
 \item \texttt{0x0a = TICK}
 \item \texttt{0x0b = HIT}
-\item \texttt{0x0d = ENTER\_STATE}
+\item \texttt{0x0c = ENTER\_STATE}
 \item \texttt{0x0e = ANIM\_FINISHED}
 \item \texttt{0x0f = DATA\_CHANGE}
 \end{itemize}
