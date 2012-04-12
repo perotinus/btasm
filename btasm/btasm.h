@@ -56,6 +56,7 @@ enum {
 //Node in the syntax tree 
 typedef struct node {
     int nodeType;
+    int loc;
     int intVal;
     char *strVal;
     int nops;

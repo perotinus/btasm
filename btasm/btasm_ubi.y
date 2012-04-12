@@ -1,6 +1,7 @@
 %{
 
 #include <stdio.h>
+#include <stdarg.h>
 
 #include "btasm.h"
 #include "map.h"
@@ -8,7 +9,7 @@
 node *cr_node(int type, int nops, ...);
 node *int_node(int i);
 node *id_node(char *s);
-void yyerror(char *s);
+void yyerror(char *s, ...);
 
 map vmap;   //Variables 
 map fmap;   //Functions
@@ -49,8 +50,8 @@ node *stree;
 
 %nonassoc ELSE
 
-
-
+%locations
+%error-verbose
 
 
 %%
@@ -68,24 +69,32 @@ var_fn_st_list:
 var_list:
 
       VAR id var_list           { if (insert_map(vmap, $2->strVal)==-1)
-                                    yyerror("variable redefined\n");
+                                    yyerror("%d:%s redeclared\n",
+                                             @2.first_line,
+                                             $2->strVal);
                                   node *attr = int_node(0);
                                   node *v = cr_node(VAR, 2, $2, attr); 
                                   $$ = cr_node(SEQ, 2, v, $3); }
 
     | VAR id VARATTR var_list   { if (insert_map(vmap, $2->strVal)==-1)
-                                    yyerror("variable redefined\n");
-                                  node *attr = int_node($3);
+                                    yyerror("%d:%s redeclared\n",
+                                            @2.first_line,
+                                            $2->strVal);
+                                  node *attr = int_node(0);
                                   node *v = cr_node(VAR, 2, $2, attr); 
                                   $$ = cr_node(SEQ, 2, v, $4); }
 
     | VAR id                    { if (insert_map(vmap, $2->strVal)==-1)
-                                    yyerror("variable redefined\n");
+                                    yyerror("%d:%s redeclared\n",
+                                            @2.first_line,
+                                            $2->strVal);
                                   node *attr = int_node(0);
                                   $$ = cr_node(VAR, 2, $2, attr); }
 
     | VAR id VARATTR            { if (insert_map(vmap, $2->strVal)==-1)
-                                    yyerror("variable redefined\n");
+                                    yyerror("%d:%s redeclared\n",
+                                            @2.first_line,
+                                            $2->strVal);
                                   node *attr = int_node($3);
                                   $$ = cr_node(VAR, 2, $2, attr); }
 
@@ -93,7 +102,7 @@ fn_list:
       FUN id stmt_list END_FUNCTION 
         {
             if (insert_map(fmap, $2->strVal)==-1)
-                yyerror("error:function redefined\n");  
+                printf("%d:error:function redefined\n", @$.first_line);  
             $$ = cr_node(FUN, 2, $2, $3); 
         }
 
@@ -270,9 +279,12 @@ branch:
 
 
  
-void yyerror(char *s)
+void yyerror(char *s, ...)
 {
-    fprintf(stderr, "%s\n", s); 
+    va_list args;
+    va_start(args, s);
+    
+    vfprintf(stderr, s, args); 
 }       
 
 

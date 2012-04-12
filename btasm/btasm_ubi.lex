@@ -3,24 +3,11 @@
 #include "btasm.h"
 #include "y.tab.h"
 
-
-
-void tok(char *tstr)
-{
-    if (tstr && tstr[0] != '!') {
-        printf("%s\n",tstr);
-    } else {
-        printf("(%s:%s)\n",++tstr,yytext);
-    }
-}
-
-void error(char *msg) 
-{
-    printf("%s",msg);
-}
+#define YY_USER_ACTION yylloc.first_line = yylloc.last_line = yylineno;
 
 %}
 
+%option yylineno
 
 %%
 
@@ -159,6 +146,8 @@ RFID_BASE1              { yylval.iVal = kRFID_BASE1; return INT; }
 
  /* ID/numbers */
 [0-9]+                  { yylval.iVal = atoi(yytext); return INT; }
+[A-Z]*                  { fprintf(stderr, "%d:Illegal keyword:%s",
+                                    yylineno, yytext); }
 [a-zA-Z0-9_]*           { yylval.sVal = yytext; return ID; } //!
  
  /*[A-Z]*                 { printf("%d:Unrecognized language keyword:%s\n",yylineno,yytext); }*/
