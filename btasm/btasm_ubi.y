@@ -5,6 +5,7 @@
 
 #include "btasm.h"
 #include "map.h"
+#include "y_userdefs.h"
 
 node *cr_node(int type, int nops, ...);
 node *int_node(int i);
@@ -22,44 +23,7 @@ map smap;   //S...
 int res_loc = 0;
 
 node *stree;
-
 %}
-
-%code requires {
-
-char *fname;
-
-typedef struct YYLTYPE
-{
-  int first_line;
-  int first_column;
-  int last_line;
-  int last_column;
-  char *fname;
-} YYLTYPE;
-
-#define YYLTYPE_IS_DECLARED 1
-
-#define YYLLOC_DEFAULT(Current, Rhs, N)				\
-    do									\
-      if (YYID (N))                                                    \
-	{								\
-	  (Current).first_line   = YYRHSLOC (Rhs, 1).first_line;	\
-	  (Current).first_column = YYRHSLOC (Rhs, 1).first_column;	\
-	  (Current).last_line    = YYRHSLOC (Rhs, N).last_line;		\
-	  (Current).last_column  = YYRHSLOC (Rhs, N).last_column;	\
-      (Current).fname        = YYRHSLOC (Rhs, 1).fname;         \
-	}								\
-      else								\
-	{								\
-	  (Current).first_line   = (Current).last_line   =		\
-	    YYRHSLOC (Rhs, 0).last_line;				\
-	  (Current).first_column = (Current).last_column =		\
-	    YYRHSLOC (Rhs, 0).last_column;				\
-      (Current).fname = fname;                       \
-	}								\
-    while (YYID (0))
-}
 
 %union {
     int iVal;
@@ -86,6 +50,9 @@ typedef struct YYLTYPE
 %locations
 %error-verbose
 
+%{
+
+%}
 
 %%
 
@@ -200,7 +167,7 @@ stmt:
     | HUD_JAUGE id          { $$ = cr_node( HUD_JAUGE, 3, int_node(0), 
                                             $2, int_node(0)); }
     | HUD_JAUGE_BLINK INT   { $$ = cr_node( HUD_JAUGE, 3, int_node(1), 
-                                            $2, int_node(1)); }
+                                            int_node($2), int_node(1)); }
     | HUD_JAUGE_BLINK id    { $$ = cr_node( HUD_JAUGE, 3, int_node(0), 
                                             $2, int_node(1)); }
     | HUD_ICON_ON ITYPE     { $$ = cr_node( HUD_ICON, 3, int_node(1), 

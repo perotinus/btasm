@@ -4,5 +4,4 @@
 -create symbol tables
 -do symbol replacement
 -preprocessor
--SND nodes are all wrong numbered
 

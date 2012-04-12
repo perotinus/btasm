@@ -10,6 +10,7 @@ my $prog = "./lexer";
 #----------------
 test("Basic parse", "", "tests");
 test("Phase 1 parse","-1", "tests");
+test("Phase 2 parse", "-1 -2", "tests");
 
 
 

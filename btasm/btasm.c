@@ -10,7 +10,7 @@
 
 
 #include "btasm.h"
-#include "y.tab.h"
+#include "userdef_y.tab.h"
 #include "map.h"
 #include "graph.h"
 

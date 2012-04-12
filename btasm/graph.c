@@ -35,11 +35,11 @@ char *graph(node *n, FILE *fp)
     switch (n->nodeType) {
         
         case INT:   
-                    fprintf(fp, "%s [label=\"INT_%d\"]\n", \
+                    fprintf(fp, "%s [label=\"INT_%d\", shape=box]\n", \
                             dotName, n->intVal);
                     break; 
         case ID:    
-                    fprintf(fp, "%s [label=\"ID_%s\"]\n", \
+                    fprintf(fp, "%s [label=\"ID_%s\", shape=diamond]\n", \
                             dotName, n->strVal);
                     break;
         default:    0; 
