@@ -13,6 +13,8 @@
 #include "userdef_y.tab.h"
 #include "map.h"
 #include "graph.h"
+#include "compile.h"
+#include "restab.h"
 
 
 #define die(x)  exit(fprintf(stderr, "%s", x));
@@ -126,6 +128,43 @@ int main(int argc, char ** argv) {
             parse1(stree);
         } else if (!strcmp("-2", arg)) {
             parse2(stree);
+        } else if (!strcmp("-c", arg)) {
+            parse1(stree);
+            parse2(stree);
+            char *prog;
+            int len = compile(stree, &prog);
+            
+            char *fname = nextOpt();
+            FILE *f = fopen(fname,"w");
+            if (!f) {
+                fprintf(stderr, "btasm: cannot open file %s for writing", fname);
+                die(fname);
+            }
+
+            int i;
+
+            //Make the lua beginning
+            fprintf(f,"bytecode = {\n");
+            //Make the resource header
+            fillrestab();
+            int reslen = imap_flip_kvpairs(rmap);
+
+            fprintf(f, "0x%.2x, ", (unsigned char)reslen);
+            for (i=0; i<reslen; i++) {
+                int j;
+                for (j=0; j<6; j++)
+                    fprintf(f, "0x%.2x, ", resources[rmap[i]][j]);
+            }  
+    
+            for (i=0; i<len-1; i++) {
+                //if ((unsigned char)prog[i] == 0xfd)
+                //    fprintf(f, "\n");
+                //else
+                    fprintf(f, "0x%.2x, ", (unsigned char)prog[i]);
+            }
+
+            fprintf(f, "0x%.2x};\nreturn bytecode;\n", (unsigned char)prog[len-1]);
+            fclose(f);
         }
 
     }
@@ -154,7 +193,7 @@ void free_tree(node *n)
 }
 
 //Convert all IDs to the associated numbers.  Die if an ID that does
-//not exist is found.
+//not exist is found.  Remove the "extra" information from VARs.
 void parse1(node *n) 
 {
     int i;
@@ -165,6 +204,13 @@ void parse1(node *n)
         m = smap;
     else if (n->nodeType == FUN || n->nodeType == CALL)
         m = fmap;
+
+    if (n->nodeType == VAR) {
+        node *temp = n->children[0];
+        n->children[0] = n->children[1];
+        free_tree(temp);
+        n->nops = 1;
+    }
 
     for (i=0; i < n->nops; i++) {
         if (n->children[i]->nodeType == ID) {
@@ -189,7 +235,8 @@ void parse1(node *n)
             node *new = int_node(vn);
             free_tree(n->children[i]);
             n->children[i] = new;
-        } else if (n->children[i]->nodeType != INT) {
+        } else if ( n->children[i]->nodeType != INT && 
+                    n->children[i]->nodeType != LONG_INT) {
             parse1(n->children[i]);
         }
     }
@@ -222,7 +269,8 @@ void parse2(node *n)
                 rnode->children[rchild]->intVal = rmap[res_bkval];
             }
  
-        } else if (n->children[i]->nodeType != INT) {
+        } else if ( n->children[i]->nodeType != INT && 
+                    n->children[i]->nodeType != LONG_INT) {
             parse2(n->children[i]);
         }
     }
@@ -231,6 +279,11 @@ void parse2(node *n)
 node *int_node(int i)
 {
     return cr_node(INT, 1, i);
+}
+
+node *lint_node(int i)
+{
+    return cr_node(LONG_INT, 1, i);
 }
 
 node *id_node(char *s)
@@ -255,7 +308,7 @@ node *cr_node(int type, int nops, ...) {
     va_start(vl, nops);
 
     //Integer
-    if (type == INT) {
+    if (type == INT || type == LONG_INT) {
         n->intVal = va_arg(vl, int);
         return n;
     }
@@ -299,4 +352,25 @@ void reverse_imap(int *m)
     for (i=0; i<=max; i++) {
         m[temp[i]] = max-i;
     }
+}
+
+//Returns the number of elements in m
+int imap_flip_kvpairs(int *m) {
+
+    int temp[RES_COUNT];
+    int max = 0;
+    int i;
+
+    for (i=0; i<RES_COUNT; i++) {
+        if (m[i] >= 0)
+            temp[m[i]] = i;
+        if (m[i] > max) 
+            max = m[i];
+    }
+
+    for (i=0; i<max+1; i++) {
+        m[i] = temp[i];
+    }
+
+    return max+1;
 }

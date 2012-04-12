@@ -40,7 +40,8 @@ node *stree;
         LED_INFINITE ANIM_OFF SND_PRIO RFID_SCAN RFID_TYPE_MAJOR
         RFID_TYPE_MINOR CALL ANIM_LOOP SET_TEAM HUD_ICON
 
-%token <iVal> INT RTYPE COMP VARATTR ETYPE ITYPE TIMER DATA_CHANGE;
+%token <iVal> INT RTYPE COMP VARATTR ETYPE ITYPE TIMER DATA_CHANGE
+              LONG_INT;
 %token <sVal> ID;
 %type <nPtr> program stmt stmt_list event_list branch id var_fn_st_list
              var_list fn_list state_list;
@@ -81,7 +82,7 @@ var_list:
                                     yyerror("%d:%s redeclared\n",
                                             @2.first_line,
                                             $2->strVal);
-                                  node *attr = int_node(0);
+                                  node *attr = int_node($3);
                                   node *v = cr_node(VAR, 2, $2, attr); 
                                   $$ = cr_node(SEQ, 2, v, $4); }
 
@@ -145,7 +146,7 @@ stmt:
     | GOTO id           { $$ = cr_node(GOTO, 1, $2); }
     //Mutation
     | SET id INT        { $$ = cr_node(SET, 3, $2, int_node(1), 
-                          int_node($3)); }
+                          lint_node($3)); }
     | SET id id         { $$ = cr_node(SET, 3, $2, int_node(0), $3); }
     | SET_HARNESS INT   { $$ = cr_node(SET_HARNESS, 1, int_node($2)); }
     | SET_TEAM INT      { $$ = cr_node(SET_TEAM, 1, int_node($2)); }
@@ -264,10 +265,10 @@ event_list:
 branch:
       IF id COMP INT stmt_list END_IF   
             { $$ = cr_node( IF, 5, $2, int_node(1), 
-                            int_node($4), int_node($3), $5); }
+                            lint_node($4), int_node($3), $5); }
 
     | IF id COMP INT stmt_list ELSE stmt_list END_IF 
-            { $$ = cr_node( IF, 6, $2, int_node(1), int_node($4),
+            { $$ = cr_node( IF, 6, $2, int_node(1), lint_node($4),
                             int_node($3), $5, $7); }
     | IF id COMP id stmt_list END_IF   
             { $$ = cr_node(IF, 5, $2, int_node(0), $4, int_node($3), $5); }

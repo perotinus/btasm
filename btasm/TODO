@@ -4,4 +4,5 @@
 -create symbol tables
 -do symbol replacement
 -preprocessor
-
+-correct numbers for AMMO_PACK, BASE1, etc..
+-deal with empty IF/ELSE statements

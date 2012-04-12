@@ -1,5 +1,6 @@
 #ifndef BTASM_H
 #define BTASM_H
+
 /**********************************
  * btasm.h
  * Header for main compiler source file
@@ -24,7 +25,7 @@ enum {  kBUTTON_1_JUST_PRESSED  = 0,
         kTICK                   = 10,
         kHIT                    = 11,
         kENTER_STATE            = 12,
-        kANIM_FINISHED          = 14,
+        kANIM_FINISHED          = 13,
         kDATA_CHANGE            = 15
 };
 
@@ -46,17 +47,16 @@ enum {  kbkHURT, kbkASSIST_SCANAMMO, kbkSCAN_BAD, kbkSCAN_GOOD, kbkBIP,
 
 //todo - need the correct numbers!!
 enum {
-    kRFID_AMMO_PACK = 0x0, 
-    kRFID_AMMO1     = 0x1,
-    kRFID_LIFE_PACK = 0x2,
-    kRFID_BASE_PACK = 0x3,
-    kRFID_BASE1     = 0x4
+    kRFID_AMMO_PACK = 0x04, 
+    kRFID_AMMO1     = 0x02,
+    kRFID_LIFE_PACK = 0x03,
+    kRFID_BASE_PACK = 0x05,
+    kRFID_BASE1     = 0x00
 };
 
 //Node in the syntax tree 
 typedef struct node {
     int nodeType;
-    int loc;
     int intVal;
     char *strVal;
     int nops;
@@ -69,6 +69,13 @@ typedef struct node {
  * /return The created node
  */
 node *int_node(int i);
+
+/**
+ * Create a node representing the (long)integer i
+ * /param i Integer to create node for
+ * /return The created node
+ */
+node *lint_node(int i);
 
 /**
  * Create an ID node representing the string s
@@ -99,4 +106,6 @@ void parse1(node *n);
 void parse2(node *n);
 
 void reverse_imap(int *m);
+
+
 #endif

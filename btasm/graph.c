@@ -38,6 +38,10 @@ char *graph(node *n, FILE *fp)
                     fprintf(fp, "%s [label=\"INT_%d\", shape=box]\n", \
                             dotName, n->intVal);
                     break; 
+        case LONG_INT:   
+                    fprintf(fp, "%s [label=\"LONGINT_%d\", shape=box]\n", \
+                            dotName, n->intVal);
+                    break; 
         case ID:    
                     fprintf(fp, "%s [label=\"ID_%s\", shape=diamond]\n", \
                             dotName, n->strVal);
