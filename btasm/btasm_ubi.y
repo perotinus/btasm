@@ -25,8 +25,41 @@ node *stree;
 
 %}
 
+%code requires {
 
+char *fname;
 
+typedef struct YYLTYPE
+{
+  int first_line;
+  int first_column;
+  int last_line;
+  int last_column;
+  char *fname;
+} YYLTYPE;
+
+#define YYLTYPE_IS_DECLARED 1
+
+#define YYLLOC_DEFAULT(Current, Rhs, N)				\
+    do									\
+      if (YYID (N))                                                    \
+	{								\
+	  (Current).first_line   = YYRHSLOC (Rhs, 1).first_line;	\
+	  (Current).first_column = YYRHSLOC (Rhs, 1).first_column;	\
+	  (Current).last_line    = YYRHSLOC (Rhs, N).last_line;		\
+	  (Current).last_column  = YYRHSLOC (Rhs, N).last_column;	\
+      (Current).fname        = YYRHSLOC (Rhs, 1).fname;         \
+	}								\
+      else								\
+	{								\
+	  (Current).first_line   = (Current).last_line   =		\
+	    YYRHSLOC (Rhs, 0).last_line;				\
+	  (Current).first_column = (Current).last_column =		\
+	    YYRHSLOC (Rhs, 0).last_column;				\
+      (Current).fname = fname;                       \
+	}								\
+    while (YYID (0))
+}
 
 %union {
     int iVal;
@@ -69,9 +102,10 @@ var_fn_st_list:
 var_list:
 
       VAR id var_list           { if (insert_map(vmap, $2->strVal)==-1)
-                                    yyerror("%d:%s redeclared\n",
-                                             @2.first_line,
-                                             $2->strVal);
+                                    yyerror("%s:%d.%d-%d: %s redeclared\n",
+                                            @2.fname,
+                                            @2.first_line, @2.first_column, 
+                                            @2.last_column, $2->strVal);
                                   node *attr = int_node(0);
                                   node *v = cr_node(VAR, 2, $2, attr); 
                                   $$ = cr_node(SEQ, 2, v, $3); }

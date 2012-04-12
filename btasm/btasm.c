@@ -55,12 +55,31 @@ int main(int argc, char ** argv) {
         rmap[i] = -1;
     smap = create_map();
   
-    //hack - assume that the last listed file is the source file
+    /*
+    //Sourcefile must have the extension .bsm or .txt  
+    for (i=1; i<argc; i++)
+        
+        //If there is a -g, skip the following file
+        if (!strcmp(argv[i],"-g")) {
+            i++;
+            continue;
+        }
+        //Skip all other option flags.
+        if (argv[i][0] == '-') {
+            continue;
+        }
+    
+     */
+        
+            
+        
+        //
     yyin = fopen(argv[argc-1], "r");
     if (argc < 2 || !yyin) {
-        die("btasm [-g <fname>] [-td] <source file>\n");
+        die("btasm [-g <fname>] [-td | -1 | -2] <source file>\n");
     } 
-    
+
+    fname = argv[argc-1];
     //Parse the file.  
     if(yyparse())
        die("btasm: Parsing failed"); 
