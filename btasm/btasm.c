@@ -149,7 +149,8 @@ int main(int argc, char ** argv) {
             fillrestab();
             int reslen = imap_flip_kvpairs(rmap);
 
-            fprintf(f, "0x%.2x, ", (unsigned char)reslen);
+            //if (reslen > 0)
+                fprintf(f, "0x%.2x, ", (unsigned char)reslen);
             for (i=0; i<reslen; i++) {
                 int j;
                 for (j=0; j<6; j++)
@@ -358,7 +359,7 @@ void reverse_imap(int *m)
 int imap_flip_kvpairs(int *m) {
 
     int temp[RES_COUNT];
-    int max = 0;
+    int max = -1;
     int i;
 
     for (i=0; i<RES_COUNT; i++) {
