@@ -398,7 +398,121 @@ Call a function.
 \item A1 = index in function table of function to call
 \end{itemize}
 
+\subsubsection{0xdd - SET HARNESS [INT]}
+Set whether the harness is used or not in this game.
+\begin{itemize}
+\item A1 = 0 if harness is not used; 1 if harness is used
+\end{itemize}
+
+\subsubsection{0xc1 - DEC [VARIDX]}
+Decrement a variable.
+\begin{itemize}
+\item A1 = the index of the variable to decrement
+\end{itemize}
+
+\subsubsection{0xc2 - INC [VARIDX]}
+Increment a variable
+\begin{itemize}
+\item A1 = the index of the variable to increment
+\end{itemize}
+
+\subsection{0xcd - HUD_DIGIT [0x01/0x00] [INT/VARIDX] [0x01/0x00]}
+Display a digit on the HUD. (between 0 and 19).  
+\begin{itemize}
+\item A1 = 0 for variable argument; 1 for constant argument
+\item A2 = index of variable or immediate value to display
+\item A3 = 0 for solid display; 1 for blinking display
+\end{itemize}
+
+\subsection{0xd6 - HUD_DIGIT_OFF}
+Stop displaying a digit on the HUD.
+
+
+\subsection{0xce - HUD_JAUGE [0x01/0x00] [INT/VARIDX] [0x01/0x00]}
+Display a value on the gauge.  Valid values are between 1 and 6.  Anything greater
+than 6 will cause the gauge to display a value of 0.  
+\begin{itemize}
+\item A1 = 0 for variable argument; 1 for constant argument
+\item A2 = index of variable or immediate value to display
+\item A3 = 0 for solid display; 1 for blinking display
+\end{itemize}
+
+\subsection{0xcb - ANIM [RESIDX]}
+Display an animation on the HUD.
+\begin{itemize}
+\item A1 = the index of the resource to display.  Must be an animation 
+
+\subsection{0xdf - ANIM_OFF}
+TODO - what does this do???
+Turn off (the????) animation on the HUD.
+
+\subsection{
+
+
+
 \subsection{Output}
+
+
+\section{Constants}
+\subsection{Animation constants}
+
+\begin{center}
+  \begin{tabular}{| c | c || c | }
+    \hline
+    ASHT & PD* & ???  \\ \hline
+    ARAM & PD* & ???  \\ \hline
+    AMED & PD* & ???  \\ \hline
+    AOUT & PD* & ???  \\ \hline
+    AGB1 & PD* & ???  \\ \hline
+    AGB2 & PD* & ???  \\ \hline
+    AGB3 & PD* & ???  \\ \hline
+    AGB4 & PD* & ???  \\ \hline
+    AUBI & PD* & ???  \\ \hline
+    \hline
+  \end{tabular}
+  NB - PD means depends on position in on-gun resource table, which is created by programmer
+\end{center}
+
+	
+\subsection{Sound constants}
+
+\begin{center}
+  \begin{tabular}{ | c || c | }
+    \hline
+    HURT & PD* & "Ungh!"  \\ \hline
+    SHOOT & PD* & "Pew!"  \\ \hline
+    ASSIST_SCANAMMO & PD* & ???  \\ \hline
+    ASSIST_SCANLIFE & PD* & ???  \\ \hline
+    ASSIST_BACKINGAME & PD* & ???  \\ \hline
+    ASSIST_BASE1 & PD* & ???  \\ \hline
+    ASSIST_BASE2 & PD* & ???  \\ \hline
+    ASSIST_BASE3 & PD* & ???  \\ \hline
+    ASSIST_BASE4 & PD* & ???  \\ \hline
+    ASSIST_UBICONNECT & PD* & ???  \\ \hline
+    EMPTY & PD* & ???  \\ \hline
+    DEAD & PD* & ???  \\ \hline
+    SG01 & PD* & ???  \\ \hline
+    SG02 & PD* & ???  \\ \hline
+    SG03 & PD* & ???  \\ \hline
+    SG04 & PD* & ???  \\ \hline
+    SC11 & PD* & ???  \\ \hline
+    SG04 & PD* & ???  \\ \hline
+    START & PD* & ???  \\ \hline
+    RESPAWN & PD* & ???  \\ \hline
+    RELOAD_CLIP & PD* & ???  \\ \hline
+    SCAN_BAD & PD* & ???  \\ \hline
+    SCAN_GOOD & PD* & ???  \\ \hline
+    BIP & PD* & ???  \\ \hline
+    RELOAD & PD* & ???  \\ \hline
+    OK & PD* & ???  \\ \hline
+    
+    \hline
+  \end{tabular}
+\end{center}
+	
+	
+Basic table4.png
+
 
 
 \end{document}
