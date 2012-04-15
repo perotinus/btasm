@@ -12,6 +12,7 @@
 \cfoot{}
 \pagestyle{empty}
 
+\newcommand{\cd}[1]{\texttt}
 %\fancyhf{}
 
 %\fancyhead[%\fancyfoot[C]{}
@@ -58,12 +59,18 @@ Master (henceforth referred to as the GM).
 
 Support for the product seems to be very limited.  The new equipment being sold by other
 vendors in what seems to be a liquidation sale comes with a 90-day manufacturer warranty, 
-which I have no reason to believe will not be honoured.  Be sure to thoroughly test the
-equipment within this 90-day period, as the first sensor vest that I purchased was faulty.
+which is not being honored by UbiSoft (I contacted them concerning a problem with one of my vests, 
+and was told that they don't have the resources to support the product anymore.  I will hopefully be
+able to resolve the issue with the party I purchased the product from, so I did not pursue further to
+force UbiSoft to honor the warranty they provided.)  Be sure to thoroughly test the
+equipment within the 90-day period (better yet, within the seller's return period), as the first
+ sensor vest that I purchased was faulty.
 There is no easy way to get the equipment in the United States - 1saleaday has been selling
-vests and guns for around \$60 for some time.  The expansion kits are nearly impossible
-to find - I could only source them from Amazon Canada, which does not allow importation of
-video games to the United States.  
+vests and guns through Buy.com  for around \$65 with shipping for some time.  The expansion kits are
+ nearly impossible to find - I could only source them from Amazon Canada, which does not allow 
+ importation of video games to the United States.  There is a person who posted to the UbiSoft forum
+ thread about open-sourcing BattleTag\footnote{See the thread at \\
+ http://forums.ubi.com/showthread.php/660186-Battle-Tag-now-obsolete-Please-Open-Source-the-software!}
 
 
 \section*{Purpose}
@@ -97,12 +104,12 @@ This, however, has not been thoroughly tested, and it is not recommended that co
 with the intention of interfering with the actual device firmware (though such modification 
 should be possible through editing the GM's Lua files).
 
-The bytecode described here is obviously that used by the weapons.  The canonical BTASM
- language,
-however, differs from the UbiSoft-style BTASM.  The BTASM compiler has a flag
-(-U) that can parse UbiSoft-style BTASM\footnote{This flag is included mainly for 
-testing against UbiSoft-style files}; canonical BTASM is used by default, and should 
-be used unless there is a particular reason not to do so.   
+%The bytecode described here is obviously that used by the weapons.  The canonical BTASM
+% language,
+%however, differs from the UbiSoft-style BTASM.  The BTASM compiler has a flag
+%(-U) that can parse UbiSoft-style BTASM\footnote{This flag is included mainly for 
+%testing against UbiSoft-style files}; canonical BTASM is used by default, and should 
+%be used unless there is a particular reason not to do so.   
 
 This document does not go into detail concerning the code that the GM must run to keep the
 game working.  This code varies less than one might expect from game type to game type, and is
@@ -127,6 +134,9 @@ equipment.
 Thanks to BL Martech, who alerted me to the fact that the Battle Tag distribution included
 Lua source files.  Thanks, also, to the developers at UbiSoft, who left a veritable roadmap for
 us to follow.  
+Thanks, also, to the members of the UbiSoft forum who compelled me to start the journey to understand
+and help others to understand the inner workings of BattleTag.
+Thanks to ??? who purchased and shipped me a few Expansion Packs.
 All thanks, of course, are given to God, who granted me a mind and a will to better
 understand this part of His creation.  May this work glorify Him alone.
 
@@ -138,28 +148,34 @@ understand this part of His creation.  May this work glorify Him alone.
 
 \mainmatter
 
-\chapter{The beginning}
+\chapter{The Source Language}
+
+This chapter gives an overview of the BTASM source language; that is, the language in which
+BTASM programs are written before they are compiled into the bytecode (which is detailed in 
+Chapter 3).
 
 \section{Environment}
 
-BTASM is whitespace-agnostic.  Control structures are defined explicitly, though indentation is
+BTASM source is whitespace-agnostic.  Control structures are defined explicitly, though indentation 
+is
 recommended in order to facilitate comprehension of control structures.  BTASM is case-sensitive;
-identifiers beginning with an uppercase letter are all reserved.  Variables must begin with a
-lowercase letter and can contain alphanumeric charaters and the underscore character.
+all language commands and named constants contain only uppercase characters.  
+Variables can contain upper- and lowercase alphanumeric charaters and the underscore character.
 
-\subsection{UbiSoft-style}
-UbiSoft-style BTASM source files are very simple in nature.  They consist of:
+\subsection{Source file structure}
+BTASM source language files are very simple in nature.  They consist of:
 \begin{itemize}
-\item A resource block 
+\item A resource block (only in bytecode)
 \item A variable declaration block
 \item Optional function declarations
 \item A required initial state
 \item Optional additional states
 \end{itemize}
 
-These parts of a source file must appear in this order in an UbiSoft-style BTASM file.  
+These parts of a source file must appear in this order in an BTASM source file.  
 \\\\
-The resource block never appears in the Ubisoft-style BTASM files -- it is instead generated from
+The resource block never appears in the BTASM source files -- it is instead generated by the btasm
+compiler from
 the rest of the source file and prepended to the beginning of the bytecode.  The resource block is 
 a list of all the sound and animation resources that the gun uses for this program.  They appear in
 the order of their first appearance in the file, ""but this is not necessary  (is it?).**  
@@ -173,7 +189,7 @@ particular names that do not vary from file to file, the integer values that rep
 different resources do vary, depending on the order that they appear in the resource block.  A 
 convenient way to think about it is a simple map, where the values are incremented by one each time
 a new key is inserted.  Therefore, the particular mapping of the sound DEAD might not be the same 
-between two source files, but it will not change within a bytecode file..
+between two source files, but it will not change within a bytecode file.
 
 The variable declaration block consists of a newline-separated list of variable expressions
 which define a variable by name and determine its relationship to the GM.  All variables are 
@@ -182,9 +198,9 @@ which define a variable by name and determine its relationship to the GM.  All v
 By default, all variables are declared as global variables in the scope of the gun program.
 The scope of the variable as it relates to the GM can be modified with the following keywords:
 \begin{itemize}
-\item CONFIG (???)
-\item SEND (the variable is sent to the GM in regular updates)???
-\item RECEIVE (the variable is sent to the gun from the GM in regular updates)???
+\item CONFIG (the variable is configured by the GM at the beginning of the game)
+\item SEND (the variable is sent to the GM in regular updates)
+\item RECEIVE (the variable is sent to the gun from the GM in regular updates)
 \end{itemize}
 
 Variables of the different types can be declared in any order.  No variable can be declared
@@ -200,7 +216,7 @@ VAR c   RECEIVE
 VAR d	CONFIG
 VAR e	SEND
 \end{lstlisting}
-\caption{A valid variable block in an UbiSoft-style BTASM program} 
+\caption{A valid variable block in a BTASM source program} 
 \end{figure}
 
 \ \\
@@ -209,23 +225,24 @@ The optional function declarations follow the variable declaration block.  A fun
 consists of a special keyword (FUN) and a name.  There is no separation function declaration - the
 function definition serves as the declaration.  Therefore, function declarations *must/should* be
 placed at the beginning of the source file/before they are first
-used in the program.  **The variable and function name-spaces do not
-conflict (THIS NEEDS TO BE TESTED!!)  If no functions are needed, than none need be declared.  Note 
+used in the program.  The variable and function name-spaces do not
+conflict in the btasm compiler or in the bytecode.  
+If no functions are needed, than none need be declared.  Note 
 that these functions are decidedly non-functional, since they depend on global values, and neither
 accept arguments or return values.  They would be better referred to as procedures -- following the
-syntax of the UbiSoft-style language, we will refer to them as functions.
+syntax of the source language, we will refer to them as functions.
 
 
   
 
 \begin{figure}[h]
 \begin{lstlisting}
-FUN foo
+FUNCTION foo
 	HUD_ICON_ON BULLET
 	HUD_ICON_ON LIFE
 END_FUNCTION
 \end{lstlisting}
-\caption{A valid function definition in an UbiSoft-style BTASM program} 
+\caption{A valid function definition in a BTASM source program} 
 \end{figure}
 
 
@@ -235,18 +252,18 @@ conceptualized as a state machine.  The gun begins the game in an initial state 
 states, and respond differently to the same stimuli.  This paradigm will be familiar to anyone who
 has programmed embedded devices.
 
-The possible events that a particular state can respond to are (at least): (nb - check the 
+The possible events that a particular state can respond to are (at least): (??? - check the 
 bytecodes to see if there are more)
 \begin{itemize}
 \item \texttt{ANIM\_FINISHED} - finished HUD animation
 \item \texttt{BUTTON\_1\_JUST\_PRESSED} - pressed button below HUD
 \item \texttt{BUTTON\_2\_JUST\_PRESSED} - pressed trigger
 \item \texttt{BUTTON\_3\_JUST\_PRESSED} - pressed RFID button
-\item \texttt{DATA\_CHANGE} - GM has changed a variable declared with the \texttt{RECEIVE} attribute
+\item \texttt{DATA\_CHANGE} - GM has changed variable(s) declared with the \texttt{RECEIVE} attribute
 \item \texttt{ENTER\_STATE} - Code run upon entering a state
 \item \texttt{HIT} - hit by another gun
-\item \texttt{TIMER} - ??probably responds to end of TIMER that was set earlier
-\item \texttt{TICK} - ??do something on each tick of the clock (what clock?)
+\item \texttt{TIMER} - probably responds to end of TIMER that was set earlier
+\item \texttt{TICK} - do something on each tick of the clock (what clock???)
 \end{itemize}
 
 Each of these events, when called, runs a block of code which can do anything that can be done
@@ -255,7 +272,10 @@ simply do nothing.  Events cannot be declared more than once per state.
 
 The state namespace does not conflict with the function namespace or the variable namespace.  It is
 possible to have a variable named foo, a function named foo, and a state named foo (this is, however,
-not recommenced, and the compiler will print a warning if it detects double-naming).
+not recommenced, and the compiler will print a warning if it detects double-naming).  Analogously,
+states, functions, and variables are all numbered from 0 in the bytecode.  The command determines
+which table is used for lookup.
+
 
 \begin{figure}[h]
 \begin{lstlisting}
@@ -281,12 +301,12 @@ END_STATE
 VAR a SEND
 VAR b 
 
-FUN foo
+FUNCTION foo
 	HUD_ICON_ON BULLET
 	HUD_ICON_OFF LIFE
 END_FUNCTION
 
-FUN bar
+FUNCTION bar
 	HUD_ICON_ON LIFE
 	HUD_ICON_OFF BULLET
 END_FUNCTION
@@ -304,29 +324,47 @@ FIRST_STATE
 
 END_STATE
 \end{lstlisting}
-\caption{A valid UbiSoft-style BTASM program} 
+\caption{A valid BTASM source program} 
 \end{figure}
 
-\chapter{Language definition}
+\chapter{The Bytecode}
 This chapter contains a definition of each of the operations in the BTASM bytecode, along with an
 explanation of their operation.  This chapter explains the bare mechanics of the bytecode, not
-the syntax and semantics of the associated UbiSoft-style BTASM language.  The author recommends
-that people use the proposed canonical syntax that maps more closely between bytecode and language.
+the syntax and semantics of the associated BTASM source language.  
 
+%%%%%%%%%%%%%%%%%
+%INSTRUCTION SET
+%%%%%%%%%%%%%%%%%
 \section{Instruction set}
+
+\subsection{Conventions}
+\begin{itemize}
+\item $[$EVENTCODE$]$ is a byte that represents a given event in a state. (See 
+		table \ref{sec:eventtypeconsts})
+\item $[$FUNIDX$]$ is an index into the function table. (See section \ref{sec:funstatetables})
+\item $[$INT$]$ is a 1-byte integer.  
+\item $[$LONGINT$]$ is a 2-byte integer, with the upper 8 bits of the value coming in the first byte 
+		and the lower 8 bits of the value coming in the second.
+\item $[$STATEIDX$]$ is an index into the state table. (See section \ref{sec:funstatetables})
+\item $[$RESIDX$]$ is an index into the resource table. (See section \ref{sec:resourcetable} and 
+		table \ref{Resource table})
+\item $[$VARIDX$]$ is an index into the variable table. (See section \ref{sec:vartable})
+\end{itemize}
+
+
 
 \subsection{Declarations}
 
 \subsubsection{0xcc - VAR [0,1,2,3]} 
-Declares a global variable
+Declares a global variable.  (See table \ref{sec:compconsts} for descriptions of the constants).
 \begin{itemize}
-\item 0 = no attributes
+\item 0 = no attributes (local)
 \item 1 = \texttt{SEND}
 \item 2 = \texttt{RECEIVE}
 \item 3 = \texttt{CONFIG}
 \end{itemize}
 
-\subsubsection{0xd0 - FUN [FUNIDX] [INT]}
+\subsubsection{0xd0 - FUNCTION [FUNIDX] [INT]}
 Declares a function
 \begin{itemize}
 \item A1 = function identifier (non-repeated ascending integers)
@@ -353,7 +391,7 @@ NB - Though there are different bytecodes for the initial state and a regular st
 the state identifiers must be unique for each different state.
 
 \subsubsection{[EVENTCODE] - EVENT [EVENTCODE] [INT]}
-Declares a new event in a state.
+Declares a new event in a state.  (See table \ref{sec:eventtypeconsts} for descriptions.)
 Event types:
 \begin{itemize}
 \item \texttt{0x00 = BUTTON\_1\_JUST\_PRESSED}
@@ -397,13 +435,24 @@ Call a function.
 \begin{itemize}
 \item A1 = index in function table of function to call
 \end{itemize}
+NB - this is an overloaded instruction that is also used for function definition with a different
+type signature
 
-\subsubsection{0xdd - SET HARNESS [INT]}
-Set whether the harness is used or not in this game.
+%%%%%%%%%%%
+%MUTATION
+%%%%%%%%%%%
+\subsection{Mutation/settings}
+
+%%%SET
+\subsection{0xc0 - SET [VARIDX] 0x00 [VARIDX]\\SET [VARIDX] 0x01 [LONGINT]}
+Set the value of a variable.
 \begin{itemize}
-\item A1 = 0 if harness is not used; 1 if harness is used
+\item A1 = the index of the variable to set
+\item A2 = 0 to set to value of variable; 1 to set to immediate value
+\item A3 = variable index;
 \end{itemize}
 
+%%%%INC/DEC
 \subsubsection{0xc1 - DEC [VARIDX]}
 Decrement a variable.
 \begin{itemize}
@@ -416,7 +465,86 @@ Increment a variable
 \item A1 = the index of the variable to increment
 \end{itemize}
 
-\subsection{0xcd - HUD\_DIGIT [0x01/0x00] [INT/VARIDX] [0x01/0x00]}
+%TEAM
+\subsubsection{0xdc - SET\_TEAM [VARIDX]}
+Set the team number for this device.
+\begin{itemize}
+\item A1 = the index of the variable which holds the team number
+\end{itemize}
+
+%HARNESS
+\subsubsection{0xdd - SET\_HARNESS [INT]}
+Set whether the harness is used or not in this game.
+\begin{itemize}
+\item A1 = 0 if harness is not used; 1 if harness is used
+\end{itemize}
+
+
+
+
+
+
+%%%%%%%%
+%OUTPUT
+%%%%%%%%
+\subsection{Output}
+
+%%MOTOR
+\subsubsection{0xd3 - MOTOR [INT]}
+Run the device motor.
+\begin{itemize}
+\item A1 = number of centiseconds to run the motor
+\end{itemize}
+
+%FLASH COLORS
+\subsubsection{0xd4 - FLASH\_RED}
+Flash a green light
+
+\subsubsection{0xd5 - FLASH\_GREEN}
+Flash a green light
+
+%%%%%SND
+\subsubsection{0xc5 - SND [0x00 | 0x01] [RESIDX] }
+Play a sound.
+\begin{itemize}
+\item A1 = 0 for regular play; 1 for priority play???????
+\item A2 = the index of the resource to display.  Must be a sound (\texttt{0x53,...}). 
+\end{itemize}
+
+%%IR
+\subsubsection{0xc6 - IR}
+Flash the IR transmitter in the gun.
+
+%%%ANIM
+\subsubsection{0xcb - ANIM [RESIDX]}
+Display an animation on the HUD.  (See \ref{sec:animtab} for a list of resource constants;
+see \ref{sec:resourcetable} for information about the resource table.)
+\begin{itemize}
+\item A1 = the index of the resource to display.  Must be an animation (\texttt{0x41,...}).
+\end{itemize}
+
+
+
+%ANIM_OFF
+\subsubsection{0xdf - ANIM\_OFF}
+TODO - what does this do???
+Turn off (the????) animation on the HUD.
+
+%%%LED
+\subsubsection{0xda - LED\_ON [INT] [0x00 | 0x01]}
+Turn on the LED ?????
+\begin{itemize}
+\item A1 = Length of time to turn on LED
+\item A2 = 0 for finite; 1 for infinite
+\end{itemize}
+
+\subsubsection{0xd7 - LED\_OFF}
+Turn off the LED.
+
+
+
+%%%DIGIT
+\subsubsection{0xcd - HUD\_DIGIT [0x01/0x00] [INT/VARIDX] [0x01/0x00]}
 Display a digit on the HUD. (between 0 and 19).  
 \begin{itemize}
 \item A1 = 0 for variable argument; 1 for constant argument
@@ -424,11 +552,13 @@ Display a digit on the HUD. (between 0 and 19).
 \item A3 = 0 for solid display; 1 for blinking display
 \end{itemize}
 
-\subsection{0xd6 - HUD\_DIGIT\_OFF}
+\subsubsection{0xd6 - HUD\_DIGIT\_OFF}
 Stop displaying a digit on the HUD.
 
 
-\subsection{0xce - HUD\_JAUGE [0x01/0x00] [INT/VARIDX] [0x01/0x00]}
+
+%%%JAUGE
+\subsubsection{0xce - HUD\_JAUGE [0x01/0x00] [INT/VARIDX] [0x01/0x00]}
 Display a value on the gauge.  Valid values are between 1 and 6.  Anything greater
 than 6 will cause the gauge to display a value of 0.  
 \begin{itemize}
@@ -437,19 +567,84 @@ than 6 will cause the gauge to display a value of 0.
 \item A3 = 0 for solid display; 1 for blinking display
 \end{itemize}
 
-\subsection{0xcb - ANIM [RESIDX]}
-Display an animation on the HUD.
+
+%%%ICON
+\subsubsection{0xcf - HUD\_ICON [0x01/0x00] [ICONIDX] [0x01/0x00]}
+Modify the display state of one of the HUD icons. 
 \begin{itemize}
-\item A1 = the index of the resource to display.  Must be an animation 
+\item A1 = 0 to turn off; 1 to turn on
+\item A2 = icon to modify (see table \ref{sec:resourcetable})
+\begin{itemize}
+\item \texttt{0x00 = ubiconnect}
+\item \texttt{0x01 = power}
+\item \texttt{0x02 = LIFE}
+\item \texttt{0x03 = BULLET}
+\item \texttt{0x04 = GOAL}
 \end{itemize}
-\subsection{0xdf - ANIM\_OFF}
-TODO - what does this do???
-Turn off (the????) animation on the HUD.
+\item A3 = 0 for solid display; 1 for blinking display
+\end{itemize}
 
 
+%%%%%%%%%%%%%
+%RFID
+%%%%%%%%%%%%%
+\subsection{RFID commands}
 
+\subsubsection{0xc8 - RFID\_SCAN [VARIDX]}
+Perform a RFID scan.
+\begin{itemize}
+\item A1 = index of the variable in which to store the status of the scan.  Will be set to 0 
+		upon failure, 1 upon success.
+\end{itemize}
 
-\subsection{Output}
+\subsubsection{0xde - RFID\_TYPE\_MAJOR [VARIDX]}
+Get the type of the base scanned.
+\begin{itemize}
+\item A1 = index of the variable in which to store the type
+\end{itemize}
+
+\subsubsection{0xd9 - RFID\_TYPE\_MINOR [VARIDX]}
+Get the specific ID of the base scanned (ie, is it T-Base 1 or T-Base 2).
+\begin{itemize}
+\item A1 = index of the variable in which to store the type
+\end{itemize}
+
+\section{Bytecode table}
+\begin{center}
+  \begin{tabular}{| c | c | }
+    \hline
+    Source symbol & Bytecode \\ \hline \hline
+    ANIM 			& \texttt{0x41}  \\ \hline
+    ANIM\_LOOP 		& \texttt{0xd8}  \\ \hline
+    ANIM\_OFF 		& \texttt{0xdf}  \\ \hline
+    CALL 			& \texttt{0xd0}  \\ \hline
+    DEC 			& \texttt{0xc1}  \\ \hline
+    FIRST\_STATE 	& \texttt{0xd2}  \\ \hline
+    FLASH\_GREEN 	& \texttt{0xd5}  \\ \hline
+   	FLASH\_RED 		& \texttt{0xd4}  \\ \hline
+    FUNCTION 		& \texttt{0xd0}  \\ \hline
+    HUD\_DIGIT 		& \texttt{0xcd}  \\ \hline
+    HUD\_DIGIT\_OFF 	& \texttt{0xd6}  \\ \hline
+    HUD\_ICON 		& \texttt{0xcf}  \\ \hline
+    HUD\_JAUGE 		& \texttt{0xce}  \\ \hline
+    IF 				& \texttt{0xc4}  \\ \hline
+    INC 			& \texttt{0xc2}  \\ \hline
+    IR 				& \texttt{0xc6}  \\ \hline
+    LED\_OFF 		& \texttt{0xd7}  \\ \hline
+    LED\_ON 			& \texttt{0xca}  \\ \hline
+    MOTOR 			& \texttt{0xd3}  \\ \hline
+    RFID\_SCAN 		& \texttt{0xc8}  \\ \hline
+    RFID\_TYPE\_MAJOR & \texttt{0xde}  \\ \hline
+    RFID\_TYPE\_MINOR & \texttt{0xd9}  \\ \hline
+    SET 			& \texttt{0xc0}  \\ \hline
+    SET\_HARNESS 	& \texttt{0xdd}  \\ \hline
+    SET\_TEAM 		& \texttt{0xdc}  \\ \hline
+    SND 			& \texttt{0xc5}  \\ \hline
+    STATE 			& \texttt{0xc7}  \\ \hline
+    TIMER		 	& \texttt{0xc9}  \\ \hline
+    VAR 			& \texttt{0xcc}  \\ \hline
+  \end{tabular}
+\end{center}
 
 
 \section{Constants}
@@ -458,6 +653,7 @@ Some of these are mapped directly onto what they represent; others create entrie
 integer-addressed tables that map from integers to the item represented by the bytecode.
 
 \subsection{Animation constants}
+\label{sec:animtab}
 \begin{center}
   \begin{tabular}{| c | c || c | }
     \hline
@@ -471,15 +667,14 @@ integer-addressed tables that map from integers to the item represented by the b
     ARAM & \texttt{0x41, 0x52, 0x41, 0x4d, 0x00, 0x00} & ???  \\ \hline
     ASHT & \texttt{0x41, 0x53, 0x48, 0x54, 0x00, 0x00} & ???  \\ \hline
     AUBI & \texttt{0x41, 0x44, 0x42, 0x49, 0x00, 0x00} & ???  \\ \hline
-  \end{tabular}\\
-
+  \end{tabular}
 \end{center}
 NB - The table bytecodes are used in the resource block to enable a given resource in the gun 
 environment; the actual value used to refer to the resource is dependent on its position in this
 table.  (See section \ref{sec:resourcetable}).
 	
 \subsection{Sound constants}
-
+\label{sec:sndtab}
 \begin{center}
   \begin{tabular}{ | c | c || c | }
     \hline
@@ -511,10 +706,134 @@ table.  (See section \ref{sec:resourcetable}).
     START & \texttt{0x53, 0x43, 0x30, 0x33, 0x00, 0x00} & ???  \\ \hline
   \end{tabular}
 \end{center}
-NB - The table bytecodes are used in the resource block to enable a given resource in the gun 
+The table bytecodes are used in the resource block to enable a given resource in the gun 
 environment; the actual value used to refer to the resource is dependent on its position in this
 table.  (See section \ref{sec:resourcetable}).	
 
+
+%%%%%%%%%%%%%%%%%%
+%COMP
+%%%%%%%%%%%%%%%%%%
+\subsection{Comparison constants}
+\label{sec:compconsts}
+\begin{center}
+  \begin{tabular}{ | c | c || c | }
+    \hline
+    Source symbol & Bytecode & Description \\ \hline \hline
+    SUP & \texttt{0x00} & $>$  \\ \hline
+    INF & \texttt{0x01} & $<$  \\ \hline
+    COMP & \texttt{0x02} & ==  \\ \hline
+    DIFF & \texttt{0x03} & !=  \\ \hline
+    
+  \end{tabular}
+\end{center}
+
+%%%%%%%%%%%%%%%%
+%VARATTR
+%%%%%%%%%%%%%%%%
+\subsection{Variable attribute constants - \texttt{VARATTR}}
+\label{sec:varattrconsts}
+\begin{minipage}{\linewidth}
+\begin{center}
+  \begin{tabular}{ | c | c || c | }
+    \hline
+    Source symbol & Bytecode & Description \\ \hline \hline
+    local\footnote{Local variables are declared without an identifier in the 
+    	BTASM source language.} & \texttt{0x00} & On-device  \\ \hline
+    SEND & \texttt{0x01} & Sent to GM  \\ \hline
+    RECEIVE & \texttt{0x02} & Updated by GM throughout the game\footnote{The 	
+    	\texttt{DATA\_CHANGE} event occurs when the GM updates a variable.  It can be ignored by 
+    	the current state.}\\ \hline
+    CONFIG & \texttt{0x03} & Set by GM at beginning of game\\ \hline
+  \end{tabular}
+\end{center}
+\end{minipage}
+
+
+%%%%%%%%%%%%%%%
+%EVENT TYPE
+%TODO - check TIMER and TICK and ANIM_FINISHED actions - ENTER_STATE, once or always called??
+%%%%%%%%%%%%%%%
+\subsection{Event type constants}
+\label{sec:eventtypeconsts}
+\begin{minipage}{\linewidth}
+\begin{center}
+  \begin{tabular}{ | c | c || c | }
+    \hline
+    Source symbol & Bytecode & Description \\ \hline \hline
+    BUTTON\_1\_JUST\_PRESSED	& \texttt{0x00} & HUD button pressed  \\ \hline
+    BUTTON\_2\_JUST\_PRESSED 	& \texttt{0x01} & Trigger just pressed  \\ \hline
+    BUTTON\_3\_JUST\_PRESSED 	& \texttt{0x02} & RFID scan button just pressed  \\ \hline
+    TIMER					 	& \texttt{0x09} & \texttt{TIMER} fired\footnote{
+    					The timers are not state-specific; the current timer will cause a TIMER event
+    					in whatever state the device is currently in.}  \\ \hline
+    TICK					 	& \texttt{0x0a} & Called on each "tick" of the clock\footnote{ 
+    					Ticks are very fast - practically, a quick timer will probably work just 
+    					as well.}  \\ \hline
+    HIT						 	& \texttt{0x0b} & Shot by another gun  \\ \hline
+    ENTER\_STATE			 	& \texttt{0x0c} & Call upon entering a state\footnote{ 
+    					Called every time a state is entered, not just the first time.???} \\ \hline
+    ANIM\_FINISHED			 	& \texttt{0x0d} & Animation on HUD completed.  \\ \hline
+    DATA\_CHANGE 				& \texttt{0x0f} & GM has updated the \texttt{RECEIVE} variables.  
+    					\\ \hline
+  \end{tabular}
+\end{center}
+\end{minipage}
+
+%%%%%%%%%%%%%%%
+%ICON
+%%%%%%%%%%%%%%%
+\subsection{Icon constants}
+\label{sec:iconconstants}
+\begin{minipage}{\linewidth}
+\renewcommand{\thefootnote}{\thempfootnote}
+\begin{center}
+  \begin{tabular}{ | c | c || c | }
+    \hline
+    Source symbol & Bytecode	 & Description \\ \hline \hline
+    ubiconnect\footnote{Not guarnateed to behave as expected; should only be controlled by device 
+   		 internal routines} 	& \texttt{0x00} & UbiConnect icon \\ \hline
+    power\footnotemark[\value{footnote}] 		& \texttt{0x01} & Lightning bolt \\ \hline
+    LIFE						& \texttt{0x02} & Plus sign  \\ \hline
+    BULLET 						& \texttt{0x03} & Green bullet  \\ \hline
+    GOAL 						& \texttt{0x04} & Green two-way arrow  \\ \hline
+  \end{tabular}
+\end{center}
+\end{minipage}
+
+%%%%%%%%%%%%%%%
+%RFID major
+%%%%%%%%%%%%%%%
+\subsection{RFID\_SCAN\_MAJOR base constants}
+\label{sec:rfidconstants}
+\begin{minipage}{\linewidth}
+\renewcommand{\thefootnote}{\thempfootnote}
+\begin{center}
+  \begin{tabular}{ | c | c || c | }
+    \hline
+    Source symbol & Bytecode	 & Description \\ \hline \hline
+    RFID\_LIFE\_PACK	& \texttt{0x03}	& Any Med-Kit  \\ \hline
+    RFID\_AMMO\_PACK	& \texttt{0x04}	& Any ammo pack  \\ \hline
+    RFID\_BASE\_PACK	& \texttt{0x05}	& Any T-Base  \\ \hline
+  \end{tabular}
+\end{center}
+\end{minipage}
+%%%%%%%%%%%%%%%
+%RFID minor
+%%%%%%%%%%%%%%%
+\subsection{RFID\_SCAN\_MINOR base constants}
+\label{sec:rfidconstants}
+\begin{minipage}{\linewidth}
+\renewcommand{\thefootnote}{\thempfootnote}
+\begin{center}
+  \begin{tabular}{ | c | c || c | }
+    \hline
+    Source symbol & Bytecode	 & Description \\ \hline \hline
+   	RFID\_BASE1 		& \texttt{0x00} & T-Base 1 \\ \hline
+   	RFID\_AMMO1 		& \texttt{0x00} & Ammo pack 1 (4-bullet pack) \\ \hline
+  \end{tabular}
+\end{center}
+\end{minipage}
 
 \section{Tables}
 BTASM bytcode creates a number of tables on the device that are used during the game.  These are:
@@ -583,5 +902,10 @@ used with \texttt{ANIM}, while sounds must be used with \texttt{SND}.
 
 
 \subsection{Variable table}
+\label{sec:vartable}
 The variable table is created by a sequence of \texttt{VAR} commands at the 
+
+\subsection{Function/state tables}
+\label{sec:funstatetables}
+
 \end{document}
