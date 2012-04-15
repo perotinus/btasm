@@ -416,7 +416,7 @@ Increment a variable
 \item A1 = the index of the variable to increment
 \end{itemize}
 
-\subsection{0xcd - HUD_DIGIT [0x01/0x00] [INT/VARIDX] [0x01/0x00]}
+\subsection{0xcd - HUD\_DIGIT [0x01/0x00] [INT/VARIDX] [0x01/0x00]}
 Display a digit on the HUD. (between 0 and 19).  
 \begin{itemize}
 \item A1 = 0 for variable argument; 1 for constant argument
@@ -424,11 +424,11 @@ Display a digit on the HUD. (between 0 and 19).
 \item A3 = 0 for solid display; 1 for blinking display
 \end{itemize}
 
-\subsection{0xd6 - HUD_DIGIT_OFF}
+\subsection{0xd6 - HUD\_DIGIT\_OFF}
 Stop displaying a digit on the HUD.
 
 
-\subsection{0xce - HUD_JAUGE [0x01/0x00] [INT/VARIDX] [0x01/0x00]}
+\subsection{0xce - HUD\_JAUGE [0x01/0x00] [INT/VARIDX] [0x01/0x00]}
 Display a value on the gauge.  Valid values are between 1 and 6.  Anything greater
 than 6 will cause the gauge to display a value of 0.  
 \begin{itemize}
@@ -441,12 +441,11 @@ than 6 will cause the gauge to display a value of 0.
 Display an animation on the HUD.
 \begin{itemize}
 \item A1 = the index of the resource to display.  Must be an animation 
-
-\subsection{0xdf - ANIM_OFF}
+\end{itemize}
+\subsection{0xdf - ANIM\_OFF}
 TODO - what does this do???
 Turn off (the????) animation on the HUD.
 
-\subsection{
 
 
 
@@ -454,65 +453,135 @@ Turn off (the????) animation on the HUD.
 
 
 \section{Constants}
-\subsection{Animation constants}
+This section contains tables of all of the constants that can appear in BTASM files.
+Some of these are mapped directly onto what they represent; others create entries in 
+integer-addressed tables that map from integers to the item represented by the bytecode.
 
+\subsection{Animation constants}
 \begin{center}
   \begin{tabular}{| c | c || c | }
     \hline
-    ASHT & PD* & ???  \\ \hline
-    ARAM & PD* & ???  \\ \hline
-    AMED & PD* & ???  \\ \hline
-    AOUT & PD* & ???  \\ \hline
-    AGB1 & PD* & ???  \\ \hline
-    AGB2 & PD* & ???  \\ \hline
-    AGB3 & PD* & ???  \\ \hline
-    AGB4 & PD* & ???  \\ \hline
-    AUBI & PD* & ???  \\ \hline
-    \hline
-  \end{tabular}
-  NB - PD means depends on position in on-gun resource table, which is created by programmer
-\end{center}
+    Source symbol & Table bytecode & Description \\ \hline \hline
+    AGB1 & \texttt{0x41, 0x47, 0x42, 0x31, 0x00, 0x00} & ???  \\ \hline
+    AGB2 & \texttt{0x41, 0x47, 0x42, 0x32, 0x00, 0x00} & ???  \\ \hline
+    AGB3 & \texttt{0x41, 0x47, 0x42, 0x33, 0x00, 0x00} & ???  \\ \hline
+    AGB4 & \texttt{0x41, 0x47, 0x42, 0x34, 0x00, 0x00} & ???  \\ \hline
+    AMED & \texttt{0x41, 0x4d, 0x45, 0x44, 0x00, 0x00} & ???  \\ \hline
+    AOUT & \texttt{0x41, 0x4f, 0x55, 0x54, 0x00, 0x00} & ???  \\ \hline
+    ARAM & \texttt{0x41, 0x52, 0x41, 0x4d, 0x00, 0x00} & ???  \\ \hline
+    ASHT & \texttt{0x41, 0x53, 0x48, 0x54, 0x00, 0x00} & ???  \\ \hline
+    AUBI & \texttt{0x41, 0x44, 0x42, 0x49, 0x00, 0x00} & ???  \\ \hline
+  \end{tabular}\\
 
+\end{center}
+NB - The table bytecodes are used in the resource block to enable a given resource in the gun 
+environment; the actual value used to refer to the resource is dependent on its position in this
+table.  (See section \ref{sec:resourcetable}).
 	
 \subsection{Sound constants}
 
 \begin{center}
-  \begin{tabular}{ | c || c | }
+  \begin{tabular}{ | c | c || c | }
     \hline
-    HURT & PD* & "Ungh!"  \\ \hline
-    SHOOT & PD* & "Pew!"  \\ \hline
-    ASSIST_SCANAMMO & PD* & ???  \\ \hline
-    ASSIST_SCANLIFE & PD* & ???  \\ \hline
-    ASSIST_BACKINGAME & PD* & ???  \\ \hline
-    ASSIST_BASE1 & PD* & ???  \\ \hline
-    ASSIST_BASE2 & PD* & ???  \\ \hline
-    ASSIST_BASE3 & PD* & ???  \\ \hline
-    ASSIST_BASE4 & PD* & ???  \\ \hline
-    ASSIST_UBICONNECT & PD* & ???  \\ \hline
-    EMPTY & PD* & ???  \\ \hline
-    DEAD & PD* & ???  \\ \hline
-    SG01 & PD* & ???  \\ \hline
-    SG02 & PD* & ???  \\ \hline
-    SG03 & PD* & ???  \\ \hline
-    SG04 & PD* & ???  \\ \hline
-    SC11 & PD* & ???  \\ \hline
-    SG04 & PD* & ???  \\ \hline
-    START & PD* & ???  \\ \hline
-    RESPAWN & PD* & ???  \\ \hline
-    RELOAD_CLIP & PD* & ???  \\ \hline
-    SCAN_BAD & PD* & ???  \\ \hline
-    SCAN_GOOD & PD* & ???  \\ \hline
-    BIP & PD* & ???  \\ \hline
-    RELOAD & PD* & ???  \\ \hline
-    OK & PD* & ???  \\ \hline
-    
-    \hline
+    Source symbol & Table bytecode & Description \\ \hline \hline
+    ASSIST\_BACKINGAME & \texttt{0x53, 0x44, 0x30, 0x32, 0x00, 0x00} & ???  \\ \hline
+    ASSIST\_BASE1 & \texttt{0x53, 0x44, 0x30, 0x39, 0x00, 0x00} & ???  \\ \hline
+    ASSIST\_BASE2 & \texttt{0x53, 0x44, 0x31, 0x30, 0x00, 0x00} & ???  \\ \hline
+    ASSIST\_BASE3 & \texttt{0x53, 0x44, 0x31, 0x31, 0x00, 0x00} & ???  \\ \hline
+    ASSIST\_BASE4 & \texttt{0x53, 0x44, 0x31, 0x32, 0x00, 0x00} & ???  \\ \hline    
+    ASSIST\_SCANAMMO & \texttt{0x53, 0x44, 0x31, 0x33, 0x00, 0x00} & ???  \\ \hline
+    ASSIST\_SCANLIFE & \texttt{0x53, 0x44, 0x31, 0x34, 0x00, 0x00} & ???  \\ \hline
+    ASSIST\_UBICONNECT & \texttt{0x53, 0x44, 0x31, 0x35, 0x00, 0x00} & ???  \\ \hline
+    BIP & \texttt{0x53, 0x43, 0x30, 0x32, 0x00, 0x00} & ???  \\ \hline
+    DEAD & \texttt{0x53, 0x44, 0x30, 0x33, 0x00, 0x00}  & ???  \\ \hline
+    EMPTY & \texttt{0x53, 0x57, 0x32, 0x32, 0x00, 0x00} & ???  \\ \hline
+    HURT & \texttt{0x53, 0x43, 0x30, 0x35, 0x00, 0x00} & "Ungh"  \\ \hline
+	OK & \texttt{0x53, 0x43, 0x31, 0x30, 0x00, 0x00} & "OK!"  \\ \hline	
+    RELOAD & \texttt{0x53, 0x57, 0x31, 0x32, 0x00, 0x00} & ???  \\ \hline
+	RELOAD\_CLIP & \texttt{0x53, 0x57, 0x34, 0x32, 0x00, 0x00} & ???  \\ \hline
+	RESPAWN & \texttt{0x53, 0x43, 0x30, 0x37, 0x00, 0x00} & ???  \\ \hline	
+	SC11 & \texttt{0x53, 0x43, 0x31, 0x31, 0x00, 0x00} & ???  \\ \hline      
+	SCAN\_BAD & \texttt{0x53, 0x43, 0x30, 0x38, 0x00, 0x00} & ???  \\ \hline
+    SCAN\_GOOD & \texttt{0x53, 0x43, 0x30, 0x39, 0x00, 0x00} & ???  \\ \hline
+    SG01 & \texttt{0x53, 0x47, 0x30, 0x31, 0x00, 0x00} & ???  \\ \hline
+    SG02 & \texttt{0x53, 0x47, 0x30, 0x32, 0x00, 0x00} & ???  \\ \hline
+    SG03 & \texttt{0x53, 0x47, 0x30, 0x33, 0x00, 0x00} & ???  \\ \hline
+    SG04 & \texttt{0x53, 0x47, 0x30, 0x34, 0x00, 0x00} & ???  \\ \hline  
+    SHOOT & \texttt{0x53, 0x57, 0x35, 0x36, 0x00, 0x00} & "Pew"  \\ \hline
+    START & \texttt{0x53, 0x43, 0x30, 0x33, 0x00, 0x00} & ???  \\ \hline
   \end{tabular}
 \end{center}
-	
-	
-Basic table4.png
+NB - The table bytecodes are used in the resource block to enable a given resource in the gun 
+environment; the actual value used to refer to the resource is dependent on its position in this
+table.  (See section \ref{sec:resourcetable}).	
 
 
+\section{Tables}
+BTASM bytcode creates a number of tables on the device that are used during the game.  These are:
+\begin{itemize}
+\item The resource table
+\item The variable table
+\item (The function table)
+\item (The state table)
+\end{itemize}
 
+The tables that are not parenthesized appear in the above order in the bytecode.  
+The resource table must come first, followed immediately by the variable table.  The function
+and state tables are generated from the \texttt{FUNCTION} and \texttt{STATE} commands.  They do
+not appear as specific tables.
+
+These tables all map from integers to the item at hand.  The table to be read from
+at any given point is determined by the command being processed.  For example, a 
+\texttt{SET}
+command will read from the variable table, while a \texttt{GOTO} command will read from the
+state table.
+
+\subsection{Resource table}
+\label{sec:resourcetable}
+The resource table is the first item in a BTASM bytecode or source file.  It is formatted as 
+follows:
+
+\begin{itemize}
+\item A byte containing the number of resources
+\item A list of resource byte codes
+\end{itemize}
+\begin{figure}[h]
+\begin{lstlisting}
+<number of resources>
+<bytecode for first resource>
+<bytecode for second resource>
+...
+<bytecode for final resource>
+\end{lstlisting}
+\caption{Layout of a resource table} 
+\end{figure}
+
+The byte codes for specific resources can be found in the 
+Within in the program, resources are referred to by their indices in the resource table.  The
+location of each index in the table is determined by the order of resource bytecodes in the
+table.  (See Figure~\ref{Resource table})
+\begin{figure}[h]
+\begin{lstlisting}
+0x02,								-- 2 resources
+0x53, 0x43, 0x30, 0x35, 0x00, 0x00, -- HURT
+0x53, 0x43, 0x30, 0x33, 0x00, 0x00,	-- START
+...
+0xd0, 0x00, 0x06, 			-- function declaration 
+							--   (6 bytes long)
+0xc5, 0x00, 0x00,			-- SND HURT
+0xc5, 0x01, 0x00,			-- SND START
+--*end of function*
+...
+\end{lstlisting}
+\caption{\label{Resource table} example code} 
+\end{figure}
+
+There are two types of resources: animation resources (begin with \texttt{A} in the BTASM source
+language and \texttt{0x41} in the BTASM bytecode); and sound resources (begin with \texttt{0x53}
+in the bytecode.  These can be added interchangeably in the resource table; animations must be
+used with \texttt{ANIM}, while sounds must be used with \texttt{SND}.
+
+
+\subsection{Variable table}
+The variable table is created by a sequence of \texttt{VAR} commands at the 
 \end{document}
