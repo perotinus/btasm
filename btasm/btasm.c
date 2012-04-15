@@ -34,6 +34,9 @@ extern node *stree;
 //Lexer source file
 extern FILE *yyin;
 
+//Syntax error counter 
+extern int yynerrs;
+
 //Global copies of the arguments -- used for argument processing.
 int g_argc;
 char **g_argv;
@@ -45,7 +48,7 @@ char *nextOpt();
 int main(int argc, char ** argv) {
     
     g_argv = argv;
-    g_argc = argc;
+    g_argc = argc-1; //The last argument is always the file to be compiled
      
     int i; 
 
@@ -83,8 +86,8 @@ int main(int argc, char ** argv) {
 
     fname = argv[argc-1];
     //Parse the file.  
-    if(yyparse())
-       die("btasm: Parsing failed"); 
+    if(yyparse() || yynerrs > 0)
+       die("btasm: Parsing failed\n"); 
 
 
     //Fix the maps
@@ -149,8 +152,7 @@ int main(int argc, char ** argv) {
             fillrestab();
             int reslen = imap_flip_kvpairs(rmap);
 
-            //if (reslen > 0)
-                fprintf(f, "0x%.2x, ", (unsigned char)reslen);
+            fprintf(f, "0x%.2x, ", (unsigned char)reslen);
             for (i=0; i<reslen; i++) {
                 int j;
                 for (j=0; j<6; j++)
@@ -166,6 +168,9 @@ int main(int argc, char ** argv) {
 
             fprintf(f, "0x%.2x};\nreturn bytecode;\n", (unsigned char)prog[len-1]);
             fclose(f);
+        } else {
+            fprintf(stderr, "btasm:");
+            die("bad flag\n");
         }
 
     }

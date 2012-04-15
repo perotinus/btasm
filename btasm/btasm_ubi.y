@@ -11,6 +11,7 @@ node *cr_node(int type, int nops, ...);
 node *int_node(int i);
 node *id_node(char *s);
 void yyerror(char *s, ...);
+void lyyerror(YYLTYPE t, char *s, ...);
 
 map vmap;   //Variables 
 map fmap;   //Functions
@@ -66,74 +67,92 @@ var_fn_st_list:
     | var_list state_list           { $$ = cr_node(SEQ, 2, $1, $2); }
     | fn_list state_list            { $$ = cr_node(SEQ, 2, $1, $2); }
     | state_list                    { $$ = $1;}
-
+    
+    /*error conditions*/
+    | var_list                      {lyyerror(@1,"Missing state block.");}
+    | fn_list                       {lyyerror(@1,"Missing state block.");}
+    | var_list fn_list              {lyyerror(@1,"Missing state block.");}
+    | fn_list var_list              {lyyerror(@1,"Missing state block.");}
+    | state_list var_list           {lyyerror(@2,"Variable block must come before state block.");}
+    | state_list fn_list            {lyyerror(@2,"Function block must come before state block.");}
+    | var_list state_list fn_list   {lyyerror(@2,"Function block must come before state block.");}
+    | fn_list state_list var_list   {lyyerror(@2,"Variable block must come before function block.");}
+    | fn_list var_list state_list   {lyyerror(@2,"Variable block must come before function block.");}
+    | state_list var_list fn_list   {lyyerror(@2,"Variable block must come before state block.");}
+    | state_list fn_list var_list   {lyyerror(@3,"Variable block must come before state block.");}
 var_list:
 
-      VAR id var_list           { if (insert_map(vmap, $2->strVal)==-1)
-                                    yyerror("%s:%d.%d-%d: %s redeclared\n",
-                                            @2.fname,
-                                            @2.first_line, @2.first_column, 
-                                            @2.last_column, $2->strVal);
+      VAR id var_list           { if (insert_map(vmap, $2->strVal)==-1) {
+                                      lyyerror(@2, "%s redeclared", $2->strVal);
+                                  }
                                   node *attr = int_node(0);
                                   node *v = cr_node(VAR, 2, $2, attr); 
                                   $$ = cr_node(SEQ, 2, v, $3); }
 
-    | VAR id VARATTR var_list   { if (insert_map(vmap, $2->strVal)==-1)
-                                    yyerror("%d:%s redeclared\n",
-                                            @2.first_line,
-                                            $2->strVal);
+    | VAR id VARATTR var_list   { if (insert_map(vmap, $2->strVal)==-1) {
+                                      lyyerror(@2, "%s redeclared", $2->strVal);
+                                  }
                                   node *attr = int_node($3);
                                   node *v = cr_node(VAR, 2, $2, attr); 
                                   $$ = cr_node(SEQ, 2, v, $4); }
 
-    | VAR id                    { if (insert_map(vmap, $2->strVal)==-1)
-                                    yyerror("%d:%s redeclared\n",
-                                            @2.first_line,
-                                            $2->strVal);
+    | VAR id                    { if (insert_map(vmap, $2->strVal)==-1) {
+                                      lyyerror(@2, "%s redeclared", $2->strVal);
+                                  }
                                   node *attr = int_node(0);
                                   $$ = cr_node(VAR, 2, $2, attr); }
 
-    | VAR id VARATTR            { if (insert_map(vmap, $2->strVal)==-1)
-                                    yyerror("%d:%s redeclared\n",
-                                            @2.first_line,
-                                            $2->strVal);
+    | VAR id VARATTR            { if (insert_map(vmap, $2->strVal)==-1) {
+                                    lyyerror(@2, "%s redeclared", $2->strVal);
+                                  }
                                   node *attr = int_node($3);
                                   $$ = cr_node(VAR, 2, $2, attr); }
+
+    /*error handling*/
+
+    | VAR id error            { lyyerror(@3, "invalid variable type"); yyclearin;}
+    | VAR error               { lyyerror(@2, "invalid variable name"); yyclearin;}
 
 fn_list:
       FUN id stmt_list END_FUNCTION 
         {
             if (insert_map(fmap, $2->strVal)==-1)
-                printf("%d:error:function redefined\n", @$.first_line);  
+                lyyerror(@2, "function redefined");
             $$ = cr_node(FUN, 2, $2, $3); 
         }
 
     | FUN id stmt_list END_FUNCTION fn_list
         {
             if (insert_map(fmap, $2->strVal)==-1)
-                yyerror("error:function redefined\n");  
+                lyyerror(@2, "function redefined");
             node *f = cr_node(FUN, 2, $2, $3);
             $$ = cr_node(SEQ, 2, f, $5); 
         }
 
+    /*error handling*/
+    | FUN id END_FUNCTION fn_list
+        { lyyerror(@2, "Empty function %s", $2->strVal);
+        }
+
+
 state_list:
       STATE id FIRST_STATE event_list END_STATE state_list
             { if (insert_map(smap, $2->strVal)==-1)
-                yyerror("error: state redefined");
+                lyyerror(@2, "state %s redefined", $2->strVal);
               node *s = cr_node(FIRST_STATE, 2, $2, $4); 
               $$ = cr_node(SEQ, 2, s, $6); }
     | STATE id event_list END_STATE state_list
             { if (insert_map(smap, $2->strVal)==-1)
-                yyerror("error: state redefined");
+                lyyerror(@2, "state %s redefined", $2->strVal);
               node *s = cr_node(STATE, 2, $2, $3); 
               $$ = cr_node(SEQ, 2, s, $5); }
     | STATE id FIRST_STATE event_list END_STATE 
             { if (insert_map(smap, $2->strVal)==-1)
-                yyerror("error: state redefined");
+                lyyerror(@2, "state %s redefined", $2->strVal);
               $$ = cr_node(FIRST_STATE, 2, $2, $4); }
     | STATE id event_list END_STATE
             { if (insert_map(smap, $2->strVal)==-1)
-                yyerror("error: state redefined");
+                lyyerror(@2, "state %s redefined", $2->strVal);
               $$ = cr_node(STATE, 2, $2, $3); }
 
 stmt_list:  
@@ -141,15 +160,16 @@ stmt_list:
     | stmt stmt_list    {$$ = cr_node(SEQ, 2, $1, $2); }
 
 stmt:
+    error '\n'          {}
     //Flow
-      branch            { $$ = $1; }
+    |  branch            { $$ = $1; }
     | GOTO id           { $$ = cr_node(GOTO, 1, $2); }
     //Mutation
     | SET id INT        { $$ = cr_node(SET, 3, $2, int_node(1), 
                           lint_node($3)); }
     | SET id id         { $$ = cr_node(SET, 3, $2, int_node(0), $3); }
     | SET_HARNESS INT   { $$ = cr_node(SET_HARNESS, 1, int_node($2)); }
-    | SET_TEAM INT      { $$ = cr_node(SET_TEAM, 1, int_node($2)); }
+    //| SET_TEAM INT      { $$ = cr_node(SET_TEAM, 1, int_node($2)); }
     | SET_TEAM id       { $$ = cr_node(SET_TEAM, 1, $2); }
     | INC id            { $$ = cr_node(INC, 1, $2); }
     | DEC id            { $$ = cr_node(DEC, 1, $2); }
@@ -281,12 +301,31 @@ branch:
 
 
  
-void yyerror(char *s, ...)
+void
+yyerror(char *s, ...)
 {
-    va_list args;
-    va_start(args, s);
-    
-    vfprintf(stderr, s, args); 
-}       
+  va_list ap;
+  va_start(ap, s);
 
+  if(yylloc.first_line)
+    fprintf(stderr, "%s:%d.%d-%d: error: ", yylloc.fname, yylloc.first_line, 
+     yylloc.first_column, yylloc.last_column);
+  vfprintf(stderr, s, ap);
+  fprintf(stderr, "\n");
+
+}
+
+
+void
+lyyerror(YYLTYPE t, char *s, ...)
+{
+  va_list ap;
+  va_start(ap, s);
+
+  if(t.first_line)
+    fprintf(stderr, "%s:%d.%d-%d: error: ", t.fname, t.first_line, t.first_column,
+        t.last_column);
+  vfprintf(stderr, s, ap);
+  fprintf(stderr, "\n");
+}
 

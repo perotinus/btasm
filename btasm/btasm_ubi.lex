@@ -68,6 +68,8 @@ HUD_DIGIT_BLINK         { return HUD_DIGIT_BLINK; }
 HUD_DIGIT_OFF           { return HUD_DIGIT_OFF; }
 HUD_JAUGE               { return HUD_JAUGE; }
 HUD_JAUGE_BLINK         { return HUD_JAUGE_BLINK; }
+HUD_GAUGE               { return HUD_JAUGE; }
+HUD_GAUGE_BLINK         { return HUD_JAUGE_BLINK; }
 HUD_ICON_ON             { return HUD_ICON_ON; }
 HUD_ICON_OFF            { return HUD_ICON_OFF; }
 BULLET                  { yylval.iVal = kBULLET; return ITYPE; }
@@ -147,6 +149,8 @@ RFID_BASE1              { yylval.iVal = kRFID_BASE1; return INT; }
 
 
 [ \n\t]+                /* Ingore whitespace */
+
+\/\/.*\n                  /* Ignore comments */
 
  /* ID/numbers */
 [0-9]+                  { yylval.iVal = atoi(yytext); return INT; }

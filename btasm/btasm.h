@@ -29,7 +29,7 @@ enum {  kBUTTON_1_JUST_PRESSED  = 0,
         kDATA_CHANGE            = 15
 };
 
-enum { kLIFE=2, kBULLET=3, kGOAL=4};
+enum { kUBICONNECT=0, kPOWER=1, kLIFE=2, kBULLET=3, kGOAL=4};
 
 enum {  kbkHURT, kbkASSIST_SCANAMMO, kbkSCAN_BAD, kbkSCAN_GOOD, kbkBIP, 
         kbkRELOAD_CLIP, kbkRELOAD, kbkOK, kbkASSIST_BACKINGAME, kbkRESPAWN,
@@ -46,12 +46,17 @@ enum {  kbkHURT, kbkASSIST_SCANAMMO, kbkSCAN_BAD, kbkSCAN_GOOD, kbkBIP,
 
 
 //todo - need the correct numbers!!
+//RFID major constants
 enum {
-    kRFID_AMMO_PACK = 0x04, 
-    kRFID_AMMO1     = 0x02,
     kRFID_LIFE_PACK = 0x03,
+    kRFID_AMMO_PACK = 0x04, 
     kRFID_BASE_PACK = 0x05,
-    kRFID_BASE1     = 0x00
+};
+
+//RFID minor constants
+enum {
+    kRFID_BASE1     = 0x00,
+    kRFID_AMMO1     = 0x00,
 };
 
 //Node in the syntax tree 
