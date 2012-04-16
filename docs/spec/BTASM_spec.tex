@@ -20,7 +20,7 @@
 
 \begin{document}
 
-\title {BTASM language specification}
+\title {BTASM Language Specification}
 \date {Revision 0 - April 4, 2012}
 \author {Jonathan MacMillan \\(jonathan.macmillan@yale.edu)}
 \maketitle
@@ -154,7 +154,7 @@ This chapter gives an overview of the BTASM source language; that is, the langua
 BTASM programs are written before they are compiled into the bytecode (which is detailed in 
 Chapter 3).
 
-\section{Environment}
+\section{Language properties}
 
 BTASM source is whitespace-agnostic.  Control structures are defined explicitly, though indentation 
 is
@@ -162,7 +162,7 @@ recommended in order to facilitate comprehension of control structures.  BTASM i
 all language commands and named constants contain only uppercase characters.  
 Variables can contain upper- and lowercase alphanumeric charaters and the underscore character.
 
-\subsection{Source file structure}
+\section{Source file structure}
 BTASM source language files are very simple in nature.  They consist of:
 \begin{itemize}
 \item A resource block (only in bytecode)
@@ -327,6 +327,327 @@ END_STATE
 \caption{A valid BTASM source program} 
 \end{figure}
 
+
+
+\section{Source language commands}
+
+%%%%%%
+%Conventions
+%%%%%%
+\subsection{Conventions}
+Arguments are enclosed in [...] if they change.  Keywords are not enclosed in brackets and are not
+included in the arguments lists that follow each command.
+Items enclosed in $<$...$>$ are optional arguments.
+
+\begin{itemize}
+\item $[$ANIMID$]$ is identifier that represents a sound. (See section \ref{sec:resourcetable} and 
+		table \ref{Resource table})
+\item $[$ICONID$]$ is identifier that represents an icon on the HUD. 
+		(See section \ref{sec:icontable})
+\item $[$ID$]$ is an identifier (such as \texttt{foo} or \texttt{bar} or \texttt{init\_game}.)
+\item $[$INT$]$ is a 1-byte integer.  
+\item $[$LONGINT$]$ is a 2-byte integer, with the upper 8 bits of the value coming in the first byte 
+		and the lower 8 bits of the value coming in the second.
+\item $[$SNDID$]$ is identifier that represents a sound. (See section \ref{sec:resourcetable} and 
+		table \ref{Resource table})
+
+\end{itemize}
+
+
+
+
+\subsection{Declarations}
+
+\subsubsection{VAR [ID] $<$[VARATTR]$>$} 
+Declares a global variable.  (See table \ref{sec:compconsts} for descriptions of the constants).
+\begin{itemize}
+\item A1 = variable identifier
+\item A2 = variable attribute (see table \ref{sec:compconsts})
+\begin{itemize}
+\item 0 = no attributes (local)
+\item 1 = \texttt{SEND}
+\item 2 = \texttt{RECEIVE}
+\item 3 = \texttt{CONFIG}
+\end{itemize}
+\end{itemize}
+
+\subsubsection{FUNCTION [ID] ... END\_FUNCTION}
+Declares a function.
+\begin{itemize}
+\item A1 = function identifier
+\end{itemize}
+
+\subsubsection{STATE [ID] $<$FIRST\_STATE$>$ ... END\_STATE}
+Declares a new state.  If FIRST\_STATE is present, then this is the initial state.
+Otherwise, it is a standard state.
+\begin{itemize}
+\item A1 = state identifier
+\end{itemize}
+NB - There can be only one initial state per program.
+
+\subsubsection{EVENT [EVENTTYPE] ... END\_EVENT}
+Declares a new event in a state.  (See table \ref{sec:eventtypeconsts} for descriptions.)
+Event types:
+\begin{itemize}
+\item \texttt{BUTTON\_1\_JUST\_PRESSED}
+\item \texttt{BUTTON\_2\_JUST\_PRESSED}
+\item \texttt{BUTTON\_3\_JUST\_PRESSED}
+\item \texttt{TIMER}
+\item \texttt{TICK}
+\item \texttt{HIT}
+\item \texttt{ENTER\_STATE}
+\item \texttt{ANIM\_FINISHED}
+\item \texttt{DATA\_CHANGE}
+\end{itemize}
+
+\subsection{Control flow}
+
+\subsubsection{GOTO [ID]}
+Switch to a different state.  That state's ENTER\_STATE event will be executed.?????
+\begin{itemize}
+\item A1 = identifier of state to move to
+\end{itemize}
+
+\subsubsection{IF [ID] [COMPARATOR] [ID or LONGINT] ... $<$ELSE ...$>$ END\_IF }
+Compare two values and branch depending on the result of the comparison.
+\begin{itemize}
+\item A1 = identifier of left-side comparison variable
+\item A2 = comparison function (SUP, INF, COMP, or DIFF) (see table \ref{sec:compconsts})
+\item A3 = integer or identifier to variable to compare with (right side)
+\end{itemize}
+
+\subsubsection{[ID]}
+Call a function.
+\begin{itemize}
+\item A1 = identifier of function to call
+\end{itemize}
+
+
+%%%%%%%%%%%
+%MUTATION
+%%%%%%%%%%%
+\subsection{Mutation/settings}
+
+%%%SET
+\subsubsection{SET [ID] [ID or LONGINT]}
+Set the value of a variable.
+\begin{itemize}
+\item A1 = identifier of the variable to set
+\item A2 = integer or identifier of variable that contains value to set A1 to
+\end{itemize}
+
+%%%%INC/DEC
+\subsubsection{DEC [ID]}
+Decrement a variable.
+\begin{itemize}
+\item A1 = identifier of variable to decrement
+\end{itemize}
+
+\subsubsection{INC [ID]}
+Increment a variable
+\begin{itemize}
+\item A1 = identifier of variable to increment
+\end{itemize}
+
+%TEAM
+\subsubsection{SET\_TEAM [ID]}
+Set the team number for this device.
+\begin{itemize}
+\item A1 = identifier of the variable that holds the team number
+\end{itemize}
+
+%HARNESS
+\subsubsection{SET\_HARNESS [INT]}
+Set whether the harness is used or not in this game.
+\begin{itemize}
+\item A1 = 0 if harness is not used; 1 if harness is used
+\end{itemize}
+
+
+
+
+
+
+%%%%%%%%
+%OUTPUT
+%%%%%%%%
+\subsection{Output}
+
+%%MOTOR
+\subsubsection{MOTOR [INT]}
+Run the device motor.
+\begin{itemize}
+\item A1 = number of centiseconds to run the motor
+\end{itemize}
+
+%FLASH COLORS
+\subsubsection{FLASH\_RED}
+Flash a red light.
+
+\subsubsection{FLASH\_GREEN}
+Flash a green light.
+
+\subsubsection{FLASH\_ORANGE}
+Flash an orange light.  This is implemented by flashing a red then a green light.
+
+
+%%%%%SND
+\subsubsection{SND [SNDID]}
+Play a sound.
+\begin{itemize}
+\item A1 = the sound-ID of the sound to play 
+\end{itemize}
+
+\subsubsection{SND\_PRIO [SNDID]}
+Play a sound (with priority???).
+\begin{itemize}
+\item A1 = the sound-ID of the sound to play
+\end{itemize}
+
+%%IR
+\subsubsection{IR}
+Flash the IR transmitter in the gun.
+
+%%%ANIM
+\subsubsection{ANIM [ANIMID]}
+Display an animation on the HUD.  (See \ref{sec:animtab} for a list of resource constants;
+see \ref{sec:resourcetable} for information about the resource table.)
+\begin{itemize}
+\item A1 = animation-ID of the resource to display.  Must be an animation (\texttt{0x41,...}).
+\end{itemize}
+
+\subsubsection{ANIM\_LOOP [ANIMID]}
+Loop an animation on the HUD.  (See \ref{sec:animtab} for a list of resource constants;
+see \ref{sec:resourcetable} for information about the resource table.)
+\begin{itemize}
+\item A1 = animation-ID of the resource to display.  Must be an animation (\texttt{0x41,...}).
+\end{itemize}
+
+
+%ANIM_OFF
+\subsubsection{ANIM\_OFF}
+TODO - what does this do???
+Turn off (the????) animation on the HUD.
+
+%%%LED
+\subsubsection{LED\_ON [INT] 0x01}
+Turn on the LEDs on the harness.
+\begin{itemize}
+\item A1 = length of time to turn on LED
+\end{itemize}
+NB - if the 0x01 argument is set to 0x00, then the bytecode is the same as the bytecode for 
+\texttt{LED\_INFINITE [INT]}.
+
+\subsubsection{LED\_INFINITE [INT]}
+Blink the LEDs on the harness until LED\_OFF is called.
+\begin{itemize}
+\item A1 = length of time of one-half of an LED off-on cycle
+\end{itemize}
+
+\subsubsection{LED\_OFF}
+Stop the LEDs on the harness from blinking.
+
+
+
+%%%DIGIT
+\subsubsection{HUD\_DIGIT [ID or INT]}
+Display a digit (between 0 and 19) on the HUD. 
+\begin{itemize}
+\item A1 = identifier of variable or immediate value to display
+\end{itemize}
+
+\subsubsection{HUD\_DIGIT\_BLINK [ID or INT]}
+Blink a digit (between 0 and 19) on the HUD. 
+\begin{itemize}
+\item A1 = identifier of variable or immediate value to display
+\end{itemize}
+
+\subsubsection{HUD\_DIGIT\_OFF}
+Stop displaying a digit on the HUD.
+
+
+
+%%%JAUGE
+\subsubsection{HUD\_JAUGE [ID or INT]}
+Display a value on the gauge.  Valid values are between 1 and 6.  Anything greater
+than 6 will cause the gauge to display a value of 0.  
+\begin{itemize}
+\item A1 = identifier of variable or immediate value to display
+\end{itemize}
+NB - this can also be called with \texttt{HUD\_GAUGE}.
+
+\subsubsection{HUD\_JAUGE\_BLINK [ID or INT]}
+Blink a value on the gauge.  Valid values are between 1 and 6.  Anything greater
+than 6 will cause the gauge to display a value of 0.  
+\begin{itemize}
+\item A1 = identifier of variable or immediate value to display
+\end{itemize}
+NB - this can also be called with \texttt{HUD\_GAUGE\_BLINK}.
+
+%%%ICON
+\subsubsection{HUD\_ICON\_ON [ICONID]}
+Turn on one of the HUD icons.
+\begin{itemize}
+\item A1 = icon to modify (see table \ref{sec:iconconstants})
+\begin{itemize}
+\item \texttt{LIFE}
+\item \texttt{BULLET}
+\item \texttt{GOAL}
+\end{itemize}
+\end{itemize}
+NB - there are no icon-IDs for the UbiConnect and the power icons.  You should not try to 
+modify these yourself unless you know what you are doing.
+
+\subsubsection{HUD\_ICON\_OFF [ICONID]}
+Turn off one of the HUD icons.
+\begin{itemize}
+\item A1 = icon to modify (see table \ref{sec:iconconstants})
+\begin{itemize}
+\item \texttt{LIFE}
+\item \texttt{BULLET}
+\item \texttt{GOAL}
+\end{itemize}
+\end{itemize}
+NB - there are no icon-IDs for the UbiConnect and the power icons.  You should not try to 
+modify these yourself unless you know what you are doing.
+
+%%%%%%%%%%%%%
+%RFID
+%%%%%%%%%%%%%
+\subsection{RFID commands}
+
+\subsubsection{RFID\_SCAN [ID]}
+Perform a RFID scan.
+\begin{itemize}
+\item A1 = identifier of the variable in which to store the status of the scan.  Will be set to 0 
+		upon failure, 1 upon success.
+\end{itemize}
+
+\subsubsection{RFID\_TYPE\_MAJOR [ID]}
+Get the type of the base scanned.
+\begin{itemize}
+\item A1 = identifier of the variable in which to store the type
+\end{itemize}
+
+\subsubsection{RFID\_TYPE\_MINOR [ID]}
+Get the specific ID of the base scanned (ie, is it T-Base 1 or T-Base 2).
+\begin{itemize}
+\item A1 = identifier of the variable in which to store the type
+\end{itemize}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 \chapter{The Bytecode}
 This chapter contains a definition of each of the operations in the BTASM bytecode, along with an
 explanation of their operation.  This chapter explains the bare mechanics of the bytecode, not
@@ -444,32 +765,33 @@ type signature
 \subsection{Mutation/settings}
 
 %%%SET
-\subsection{0xc0 - SET [VARIDX] 0x00 [VARIDX]\\SET [VARIDX] 0x01 [LONGINT]}
+\subsubsection{0xc0 - SET [VARIDX] 0x00 [VARIDX]}
+\subsubsection{0xc0 - SET [VARIDX] 0x01 [LONGINT]}
 Set the value of a variable.
 \begin{itemize}
-\item A1 = the index of the variable to set
+\item A1 = index of the variable to set
 \item A2 = 0 to set to value of variable; 1 to set to immediate value
-\item A3 = variable index;
+\item A3 = immediate value or variable index to set A1 to
 \end{itemize}
 
 %%%%INC/DEC
 \subsubsection{0xc1 - DEC [VARIDX]}
 Decrement a variable.
 \begin{itemize}
-\item A1 = the index of the variable to decrement
+\item A1 = index of the variable to decrement
 \end{itemize}
 
 \subsubsection{0xc2 - INC [VARIDX]}
 Increment a variable
 \begin{itemize}
-\item A1 = the index of the variable to increment
+\item A1 = index of the variable to increment
 \end{itemize}
 
 %TEAM
 \subsubsection{0xdc - SET\_TEAM [VARIDX]}
 Set the team number for this device.
 \begin{itemize}
-\item A1 = the index of the variable which holds the team number
+\item A1 = index of the variable which holds the team number
 \end{itemize}
 
 %HARNESS
@@ -498,7 +820,7 @@ Run the device motor.
 
 %FLASH COLORS
 \subsubsection{0xd4 - FLASH\_RED}
-Flash a green light
+Flash a red light
 
 \subsubsection{0xd5 - FLASH\_GREEN}
 Flash a green light
@@ -523,6 +845,12 @@ see \ref{sec:resourcetable} for information about the resource table.)
 \item A1 = the index of the resource to display.  Must be an animation (\texttt{0x41,...}).
 \end{itemize}
 
+\subsubsection{0xcb - ANIM\_LOOP [RESIDX]}
+Loop an animation on the HUD.  (See \ref{sec:animtab} for a list of resource constants;
+see \ref{sec:resourcetable} for information about the resource table.)
+\begin{itemize}
+\item A1 = the index of the resource to display.  Must be an animation (\texttt{0x41,...}).
+\end{itemize}
 
 
 %ANIM_OFF
@@ -532,14 +860,14 @@ Turn off (the????) animation on the HUD.
 
 %%%LED
 \subsubsection{0xda - LED\_ON [INT] [0x00 | 0x01]}
-Turn on the LED ?????
+Turn on the LEDs on the harness.
 \begin{itemize}
-\item A1 = Length of time to turn on LED
-\item A2 = 0 for finite; 1 for infinite
+\item A1 = Length of time to turn on LED (or length of one-half of an on-off cycle)
+\item A2 = 0 to blink once; 1 to blink repeatedly until LED\_OFF is called
 \end{itemize}
 
 \subsubsection{0xd7 - LED\_OFF}
-Turn off the LED.
+Stop the LEDs on harness from blinking.
 
 
 
@@ -573,7 +901,7 @@ than 6 will cause the gauge to display a value of 0.
 Modify the display state of one of the HUD icons. 
 \begin{itemize}
 \item A1 = 0 to turn off; 1 to turn on
-\item A2 = icon to modify (see table \ref{sec:resourcetable})
+\item A2 = icon to modify (see table \ref{sec:iconconstants})
 \begin{itemize}
 \item \texttt{0x00 = ubiconnect}
 \item \texttt{0x01 = power}
