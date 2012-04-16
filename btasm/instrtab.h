@@ -22,8 +22,37 @@ inline int has_len_arg(int t)
 //Fill the instruction table
 void fillinstrtab() {
 
-
-	instrtab[GOTO]              = 0xc3; //0xc1?????
+	instrtab[ANIM]              = 0xcb;
+	instrtab[ANIM_LOOP]         = 0xd8;
+	instrtab[ANIM_OFF]          = 0xdf;
+	instrtab[CALL]              = 0xd0;
+	instrtab[DEC]               = 0xc1;
+	instrtab[FIRST_STATE]       = 0xd2;
+	instrtab[FLASH_GREEN]       = 0xd5;
+	instrtab[FLASH_RED]         = 0xd4;
+	instrtab[FUN]               = 0xd0;
+	instrtab[HUD_DIGIT]         = 0xcd;
+	instrtab[HUD_DIGIT_OFF]     = 0xd6;
+	instrtab[HUD_ICON]          = 0xcf;
+	instrtab[HUD_JAUGE]         = 0xce;
+	instrtab[IF]                = 0xc4;
+	instrtab[INC]               = 0xc2;
+	instrtab[IR]                = 0xc6;
+	instrtab[LED_OFF]           = 0xd7;
+	instrtab[LED_ON]            = 0xca;
+	instrtab[MOTOR]             = 0xd3;
+	instrtab[RFID_SCAN]         = 0xc8;
+	instrtab[RFID_TYPE_MAJOR]   = 0xde;
+	instrtab[RFID_TYPE_MINOR]   = 0xd9;
+	instrtab[SET]               = 0xc0;
+	instrtab[SET_HARNESS]       = 0xdd; 
+	instrtab[SET_TEAM]          = 0xdc;
+	instrtab[SND]               = 0xc5;
+	instrtab[STATE]             = 0xc7;
+	instrtab[TIMER]             = 0xc9;
+	instrtab[VAR]               = 0xcc;
+	
+    /*instrtab[GOTO]              = 0xc3; //0xc1?????
 	instrtab[SET]               = 0xc0;
 	instrtab[SET_HARNESS]       = 0xdd; 
 	instrtab[INC]               = 0xc2;
@@ -77,7 +106,7 @@ void fillinstrtab() {
 	//instrtab[ITYPE] = ;
 	instrtab[TIMER]             = 0xc9;
 	//instrtab[DATA_CHANGE]       = ;
-	//instrtab[ID] = ;
+	//instrtab[ID] = ;*/
 }
 
 #endif

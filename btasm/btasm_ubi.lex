@@ -9,6 +9,12 @@ int yycolumn = 1;
 #define YY_USER_ACTION yylloc.first_line = yylloc.last_line = yylineno; \
     yylloc.first_column = yycolumn; yylloc.last_column = yycolumn+yyleng-1; \
     yycolumn += yyleng; yylloc.fname = fname;
+
+//Hexidecimal version of atoi.  Assumes that it will be passed
+//a well-formed string of the form 0x[0-9a-fA-F].  Will fail
+//catastrophically otherwise.
+int hatoi(char *s);
+
 %}
 
 %option yylineno
@@ -20,11 +26,14 @@ int yycolumn = 1;
  /* Declarations */ 
 VAR                     { return VAR; }
 CONFIG                  { yylval.iVal = kCONFIG; return VARATTR; }
-SEND                    { yylval.iVal = kSEND; return VARATTR; }
 RECEIVE                 { yylval.iVal = kRECEIVE; return VARATTR; }
+SEND                    { yylval.iVal = kSEND; return VARATTR; }
+
 FUNCTION                { return FUN; }
+
 STATE                   { return STATE; }
 FIRST_STATE             { return FIRST_STATE; }
+
 EVENT                   { return EVENT; }
 
 
@@ -32,16 +41,20 @@ EVENT                   { return EVENT; }
 IF                      { return IF; }
 COMP                    { yylval.iVal = kCOMP; return COMP; }
 DIFF                    { yylval.iVal = kDIFF; return COMP; }
-SUP                     { yylval.iVal = kSUP; return COMP; }
 INF                     { yylval.iVal = kINF; return COMP; }
+SUP                     { yylval.iVal = kSUP; return COMP; }
 ELSE                    { return ELSE; }
 END_IF                  { return END_IF; }
 
  /* Control flow */
-GOTO                    { return GOTO; }
+
+END_EVENT               { return END_EVENT; }
 END_FUNCTION            { return END_FUNCTION; }
 END_STATE               { return END_STATE; }
-END_EVENT               { return END_EVENT; }
+
+GOTO                    { return GOTO; }
+
+
  /* Event types */
 BUTTON_1_JUST_PRESSED   {   yylval.iVal = kBUTTON_1_JUST_PRESSED; 
                             return ETYPE; } 
@@ -56,43 +69,51 @@ ENTER_STATE             { yylval.iVal = kENTER_STATE; return ETYPE; }
 ANIM_FINISHED           { yylval.iVal = kANIM_FINISHED; return ETYPE; }
 DATA_CHANGE             { yylval.iVal = kDATA_CHANGE; return DATA_CHANGE; }
              
- /* Mutation */
+ /* Mutation/settings */
 SET                     { return SET; }
 DEC                     { return DEC; }
 INC                     { return INC; }
 
+SET_HARNESS             { return SET_HARNESS; }
+SET_TEAM                { return SET_TEAM; }
+
+
  /* HUD */
 HUD_DIGIT               { return HUD_DIGIT; }
- /*OFF                     { return OFF; }*/
 HUD_DIGIT_BLINK         { return HUD_DIGIT_BLINK; }
 HUD_DIGIT_OFF           { return HUD_DIGIT_OFF; }
+
 HUD_JAUGE               { return HUD_JAUGE; }
 HUD_JAUGE_BLINK         { return HUD_JAUGE_BLINK; }
 HUD_GAUGE               { return HUD_JAUGE; }
 HUD_GAUGE_BLINK         { return HUD_JAUGE_BLINK; }
+
 HUD_ICON_ON             { return HUD_ICON_ON; }
 HUD_ICON_OFF            { return HUD_ICON_OFF; }
+
 BULLET                  { yylval.iVal = kBULLET; return ITYPE; }
-LIFE                    { yylval.iVal = kLIFE; return ITYPE; }
 GOAL                    { yylval.iVal = kGOAL; return ITYPE; }
+LIFE                    { yylval.iVal = kLIFE; return ITYPE; }
+
 LED_ON                  { return LED_ON; }
-LED_OFF                 { return LED_OFF; }
 LED_INFINITE            { return LED_INFINITE; }
+LED_OFF                 { return LED_OFF; }
+
 ANIM                    { return ANIM; }
-ANIM_OFF                { return ANIM_OFF; }
 ANIM_LOOP               { return ANIM_LOOP; }
+ANIM_OFF                { return ANIM_OFF; }
 
 
-FLASH_ORANGE            { return FLASH_ORANGE; }
 FLASH_GREEN             { return FLASH_GREEN; }
+FLASH_ORANGE            { return FLASH_ORANGE; }
 FLASH_RED               { return FLASH_RED; }
 
+ /* Sound/motor/IR */
 
- /* Sound/motor */
+IR                      { return IR; }
 MOTOR                   { return MOTOR; }
 SND                     { return SND; }
 SND_PRIO                { return SND_PRIO; }
-IR                      { return IR; }
 
  /* Sounds */
 HURT                    { yylval.iVal = kbkHURT; return RTYPE; }
@@ -130,21 +151,18 @@ AGB3                    { yylval.iVal = kbkAGB3; return RTYPE; }
 AGB4                    { yylval.iVal = kbkAGB4; return RTYPE; }
 AUBI                    { yylval.iVal = kbkAUBI; return RTYPE; }
 
- /* Vest */
-SET_HARNESS             { return SET_HARNESS; }
-
- /* Team */
-SET_TEAM                { return SET_TEAM; }
 
 
  /* RFID */
 RFID_SCAN               { return RFID_SCAN; }
 RFID_TYPE_MAJOR         { return RFID_TYPE_MAJOR; }
 RFID_TYPE_MINOR         { return RFID_TYPE_MINOR; }
+
 RFID_AMMO_PACK          { yylval.iVal = kRFID_AMMO_PACK; return INT; }
-RFID_AMMO1              { yylval.iVal = kRFID_AMMO1; return INT; }
-RFID_LIFE_PACK          { yylval.iVal = kRFID_LIFE_PACK; return INT; }
 RFID_BASE_PACK          { yylval.iVal = kRFID_BASE_PACK; return INT; }
+RFID_LIFE_PACK          { yylval.iVal = kRFID_LIFE_PACK; return INT; }
+
+RFID_AMMO1              { yylval.iVal = kRFID_AMMO1; return INT; }
 RFID_BASE1              { yylval.iVal = kRFID_BASE1; return INT; }
 
 
@@ -154,12 +172,44 @@ RFID_BASE1              { yylval.iVal = kRFID_BASE1; return INT; }
 
  /* ID/numbers */
 [0-9]+                  { yylval.iVal = atoi(yytext); return INT; }
+0x[0-9a-fA-F]+          { yylval.iVal = hatoi(yytext); return INT; }
 [A-Z]*                  { fprintf(stderr, "%d:Illegal keyword:%s",
                                     yylineno, yytext); }
 [a-zA-Z0-9_]*           { yylval.sVal = yytext; return ID; } //!
  
- /*[A-Z]*                 { printf("%d:Unrecognized language keyword:%s\n",yylineno,yytext); }*/
- /*[A-Z0-9_][A-Za-z0-9_]* { printf("%d:Illegal identifier:%s\n", yylineno,yytext); } */
- /*.                       {printf("%d:Illegal character\n", yylineno); }
- */
 %%
+
+int hatoi(char *s) {
+
+    int len = strlen(s);
+    int i;
+    int val = 0;
+    int mult = 1;
+
+    //work from the back
+    for (i=len-1; i>0; i--) {
+    
+        char c = s[i];
+        
+        //We've reached the end of the number
+        if (c=='x')
+            break;
+
+        int temp = c - '0';
+        int temp2 = c - 'a' + 10;
+
+        //If temp is between 0 and 9, then
+        //the character must have been a digit
+        if (temp < 0 || temp > 9) {
+            val += temp2 * mult;
+        } else {
+            val += temp * mult; 
+        }
+
+        //Move one hex place over
+        mult *= 0x10;
+    }
+
+    //printf("%s to 0x%x", s, val);
+
+}
