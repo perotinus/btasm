@@ -12,7 +12,6 @@
 \cfoot{}
 \pagestyle{empty}
 
-\newcommand{\cd}[1]{\texttt}
 %\fancyhf{}
 
 %\fancyhead[%\fancyfoot[C]{}
@@ -71,21 +70,24 @@ vests and guns through Buy.com  for around \$65 with shipping for some time.  Th
  importation of video games to the United States.  There is a person who posted to the UbiSoft forum
  thread about open-sourcing BattleTag\footnote{See the thread at \\
  http://forums.ubi.com/showthread.php/660186-Battle-Tag-now-obsolete-Please-Open-Source-the-software!}
-
+who claimed as of April 2012 to know where to get some clearance-priced Expansion Kits in the
+Houston area.
 
 \section*{Purpose}
 
-The purpose of this document is to elucidate the bytecode that is used to control the 
+The purpose of this document is to elucidate the bytecode and source language that is used to 
+control the 
 guns during gameplay.  This information has been gleaned from the bytecode and associated
 source files provided with the BattleTag software.  Anyone who wishes to obtain this 
 software must purchase BattleTag equipment - the software is not available legally (to
 my knowledge) save on the CD-ROM that accompanies the game.
 
 Every time a game is initiated, the GM broadcasts a bytecode
-to all of the guns that are involved in the game.  This bytecode is stored in Lua tables
-as a comma-separated sequence of bytes.  The bytecode appears to be almost completely
+to all of the guns that are involved in the game.  This bytecode is stored on the PC in Lua tables
+as a comma-separated sequence of hex bytes (though there is no reason why decimal bytes
+couldn't be used, if one were feeling masochistic).  The bytecode appears to be almost completely
 responsible for the functioning of the device in game - the full workings of each gameplay
-mode appear to be represented in the bytecode files.
+mode appear to be represented in the bytecode files rather than in the device firmware.
 
 UbiSoft has rather oddly chosen to leave the non-assembled source files for all of the
 bytecodes in the distributed version of the game.  This golden opportunity has allowed
@@ -95,7 +97,7 @@ UbiSoft.  It is a simple event-driven imperative language, with special language
 different elements of the weapon.  There is a slight bit of work that the assembler needs 
 to do in order to translate between the source code and the bytecode.  In fact, it is very
 straightforward to write bytecode and upload it to the device (by hijacking the game's built-in
-upload routines).  
+upload routines).
 
 There appears to be no CRC or consistency check of any sort on the weapons or the GM.  In fact,
 it is perfectly possible to upload broken code to the device.  It appears that simply turning
@@ -111,16 +113,20 @@ should be possible through editing the GM's Lua files).
 %testing against UbiSoft-style files}; canonical BTASM is used by default, and should 
 %be used unless there is a particular reason not to do so.   
 
-This document does not go into detail concerning the code that the GM must run to keep the
-game working.  This code varies less than one might expect from game type to game type, and is
-mainly concerned with overall control and scoring.  If there is interest, I may cover this
-information in another document. 
- 
+This document does not go into great detail concerning the code that the GM must run to keep the
+game working.  The basics are covered near the end in order to facilitate testing bytecodes on
+the device.  The GM code varies less than one might expect from game type to game type, and is
+mainly concerned with overall control and scoring, though it can also serve a more integral function.
+In the game "The Wolf" that is included with the bytecode, the GM is responsible for setting which
+player is the wolf, and changing that player from time to time.  If there is interest, I may cover
+GM programming in more detail in another book.  The information in this book should be enough to
+create a new game and set it up, though without the scoreboard features that are present in the
+built-in games.
  
 \section*{Disclaimer}
 
-The author makes no
-guarantee that any of the information presented in this document is accurate.  
+%The author makes no
+%guarantee that any of the information presented in this document is accurate.  
 Everything in this document is presented on an "as-is" and "with all faults" basis.  The 
 author is not liable
 for any damage to equipment or persons that is caused by any use, modification, or 
