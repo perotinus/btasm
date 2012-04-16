@@ -16,10 +16,10 @@ toktab: src/tables/toktab.h_tmpl src/tables/toktab.pl yacc
 test: utils/test.pl btasm
 	perl utils/test.pl
 
-clean: clean
-	rm src/y.tab.* btasm 
+clean: Clean
+	rm -rf btasm.dSYM src/y.tab.* src/tables/toktab.h src/lex.yy.c btasm 
 
-.PHONY: test clean
+.PHONY: test Clean
 
 ###############################
 dot: graph.gv
