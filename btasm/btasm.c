@@ -19,6 +19,8 @@
 
 #define die(x)  exit(fprintf(stderr, "%s", x));
 
+#define VERSION "btasm - the BattleTag assembler\nJ. MacMillan\nversion 0.1 (April 15, 2012)\n"
+
 //Maps for the compiler.  The bytecode only uses integers to
 //reference variables, functions, resources and states.  This
 //maps the identifiers into integers which will be used by the
@@ -79,9 +81,13 @@ int main(int argc, char ** argv) {
             
         
         //
+    if (argc == 2 && !strcmp(argv[1], "-v")) {
+        printf(VERSION);
+        exit(0);
+    }
     yyin = fopen(argv[argc-1], "r");
     if (argc < 2 || !yyin) {
-        die("btasm [-g <fname>] [-td | -1 | -2] <source file>\n");
+        die("btasm [-c <fname>] [-g <fname>] [-td | -1 | -2] [-v] <source file>\n");
     } 
 
     fname = argv[argc-1];
