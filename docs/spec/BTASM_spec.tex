@@ -50,7 +50,7 @@ not been released in a larger market.  It appears to have been abandoned by UbiS
 thereafter, and (as of the creation of this document) none of the equipment can be purchased
 from UbiSoft's website.
 
-The game itself consists of infra-red "laser" guns, sensor vests, RFID-enabled "bases", and
+The game itself consists of infra-red ``laser" guns, sensor vests, RFID-enabled ``bases", and
 the UbiConnect, a USB peripheral which communicates with the guns using an unknown radio
 technology.  The computer that is connected to the UbiConnect manages all aspects of play 
 (except, of course, those that it offloads to the weapons themselves) and is called the Game
@@ -117,7 +117,7 @@ This document does not go into great detail concerning the code that the GM must
 game working.  The basics are covered near the end in order to facilitate testing bytecodes on
 the device.  The GM code varies less than one might expect from game type to game type, and is
 mainly concerned with overall control and scoring, though it can also serve a more integral function.
-In the game "The Wolf" that is included with the bytecode, the GM is responsible for setting which
+In the game ``The Wolf" that is included with the bytecode, the GM is responsible for setting which
 player is the wolf, and changing that player from time to time.  If there is interest, I may cover
 GM programming in more detail in another book.  The information in this book should be enough to
 create a new game and set it up, though without the scoreboard features that are present in the
@@ -127,7 +127,7 @@ built-in games.
 
 %The author makes no
 %guarantee that any of the information presented in this document is accurate.  
-Everything in this document is presented on an "as-is" and "with all faults" basis.  The 
+Everything in this document is presented on an ``as-is" and ``with all faults" basis.  The 
 author is not liable
 for any damage to equipment or persons that is caused by any use, modification, or 
 dissemination of the information presented in this document.  You
@@ -266,7 +266,7 @@ bytecodes to see if there are more)
 \item \texttt{BUTTON\_2\_JUST\_PRESSED} - pressed trigger
 \item \texttt{BUTTON\_3\_JUST\_PRESSED} - pressed RFID button
 \item \texttt{DATA\_CHANGE} - GM has changed variable(s) declared with the \texttt{RECEIVE} attribute
-\item \texttt{ENTER\_STATE} - Code run upon entering a state
+\item \texttt{ENTER\_STATE} - code run upon entering a state
 \item \texttt{HIT} - hit by another gun
 \item \texttt{TIMER} - probably responds to end of TIMER that was set earlier
 \item \texttt{TICK} - do something on each tick of the clock (what clock???)
@@ -321,19 +321,18 @@ STATE baz
 FIRST_STATE
 
 	EVENT BUTTON_1_JUST_PRESSED
-		foo		--call function foo
+		foo		//call function foo
 	END_EVENT
 
 	EVENT BUTTON_3_JUST_PRESSED
-		bar		--call function bar
+		bar		//call function bar
 	END_EVENT
 
 END_STATE
 \end{lstlisting}
 \caption{A valid BTASM source program} 
 \end{figure}
-
-
+\newpage
 
 \section{Source language commands}
 
@@ -370,10 +369,9 @@ Declares a global variable.  (See table \ref{sec:compconsts} for descriptions of
 \item A1 = variable identifier
 \item A2 = variable attribute (see table \ref{sec:compconsts})
 \begin{itemize}
-\item 0 = no attributes (local)
-\item 1 = \texttt{SEND}
-\item 2 = \texttt{RECEIVE}
-\item 3 = \texttt{CONFIG}
+\item \texttt{SEND}
+\item \texttt{RECEIVE}
+\item \texttt{CONFIG}
 \end{itemize}
 \end{itemize}
 
@@ -657,7 +655,8 @@ Get the specific ID of the base scanned (ie, is it T-Base 1 or T-Base 2).
 \chapter{The Bytecode}
 This chapter contains a definition of each of the operations in the BTASM bytecode, along with an
 explanation of their operation.  This chapter explains the bare mechanics of the bytecode, not
-the syntax and semantics of the associated BTASM source language.  
+the syntax and semantics of the associated BTASM source language.  Do not confuse the mnemonics
+used here with the keywords in the source language described in Chapter 2.
 
 %%%%%%%%%%%%%%%%%
 %INSTRUCTION SET
@@ -695,7 +694,7 @@ Declares a global variable.  (See table \ref{sec:compconsts} for descriptions of
 Declares a function
 \begin{itemize}
 \item A1 = function identifier (non-repeated ascending integers)
-\item A2 = size of function in bytes (maximum value of 256 - not counting declaration)
+\item A2 = size of function in bytes (maximum value of 256 - not counting this declaration)
 \end{itemize}
 NB - this is an overloaded instruction that is also used for function calls with a different type
 signature
@@ -704,7 +703,7 @@ signature
 Declares a new (initial) state
 \begin{itemize}
 \item A1 = state identifier (non-repeated ascending integers)
-\item A2 = size of the state in bytes (not counting declaration)
+\item A2 = size of the state in bytes (not counting this declaration)
 \end{itemize}
 NB - There can be only one initial state per program.
 
@@ -712,7 +711,7 @@ NB - There can be only one initial state per program.
 Declares a new (non-initial) state
 \begin{itemize}
 \item A1 = state identifier (non-repeated ascending integers)
-\item A2 = size of the state in bytes (not counting declaration)
+\item A2 = size of the state in bytes (not counting this declaration)
 \end{itemize}
 NB - Though there are different bytecodes for the initial state and a regular state,
 the state identifiers must be unique for each different state.
@@ -731,7 +730,7 @@ Event types:
 \item \texttt{0x0e = ANIM\_FINISHED}
 \item \texttt{0x0f = DATA\_CHANGE}
 \end{itemize}
-The second argument is the length of the event code in bytes (not counting declaration)
+The second argument is the length of the event code in bytes (not counting this declaration)
 
 \subsection{Control flow}
 
@@ -1024,8 +1023,8 @@ table.  (See section \ref{sec:resourcetable}).
     BIP & \texttt{0x53, 0x43, 0x30, 0x32, 0x00, 0x00} & ???  \\ \hline
     DEAD & \texttt{0x53, 0x44, 0x30, 0x33, 0x00, 0x00}  & ???  \\ \hline
     EMPTY & \texttt{0x53, 0x57, 0x32, 0x32, 0x00, 0x00} & ???  \\ \hline
-    HURT & \texttt{0x53, 0x43, 0x30, 0x35, 0x00, 0x00} & "Ungh"  \\ \hline
-	OK & \texttt{0x53, 0x43, 0x31, 0x30, 0x00, 0x00} & "OK!"  \\ \hline	
+    HURT & \texttt{0x53, 0x43, 0x30, 0x35, 0x00, 0x00} & ``Ungh"  \\ \hline
+	OK & \texttt{0x53, 0x43, 0x31, 0x30, 0x00, 0x00} & ``OK!"  \\ \hline	
     RELOAD & \texttt{0x53, 0x57, 0x31, 0x32, 0x00, 0x00} & ???  \\ \hline
 	RELOAD\_CLIP & \texttt{0x53, 0x57, 0x34, 0x32, 0x00, 0x00} & ???  \\ \hline
 	RESPAWN & \texttt{0x53, 0x43, 0x30, 0x37, 0x00, 0x00} & ???  \\ \hline	
@@ -1036,7 +1035,7 @@ table.  (See section \ref{sec:resourcetable}).
     SG02 & \texttt{0x53, 0x47, 0x30, 0x32, 0x00, 0x00} & ???  \\ \hline
     SG03 & \texttt{0x53, 0x47, 0x30, 0x33, 0x00, 0x00} & ???  \\ \hline
     SG04 & \texttt{0x53, 0x47, 0x30, 0x34, 0x00, 0x00} & ???  \\ \hline  
-    SHOOT & \texttt{0x53, 0x57, 0x35, 0x36, 0x00, 0x00} & "Pew"  \\ \hline
+    SHOOT & \texttt{0x53, 0x57, 0x35, 0x36, 0x00, 0x00} & ``Pew"  \\ \hline
     START & \texttt{0x53, 0x43, 0x30, 0x33, 0x00, 0x00} & ???  \\ \hline
   \end{tabular}
 \end{center}
@@ -1101,7 +1100,7 @@ table.  (See section \ref{sec:resourcetable}).
     TIMER					 	& \texttt{0x09} & \texttt{TIMER} fired\footnote{
     					The timers are not state-specific; the current timer will cause a TIMER event
     					in whatever state the device is currently in.}  \\ \hline
-    TICK					 	& \texttt{0x0a} & Called on each "tick" of the clock\footnote{ 
+    TICK					 	& \texttt{0x0a} & Called on each ``tick" of the clock\footnote{ 
     					Ticks are very fast - practically, a quick timer will probably work just 
     					as well.}  \\ \hline
     HIT						 	& \texttt{0x0b} & Shot by another gun  \\ \hline
@@ -1248,7 +1247,7 @@ the majority of the gameplay work is done on the guns in the course of an actual
 can play an essential role, especially in games where players change roles, or aspects of the 
 gamplay change depending on the current state of the game.  (As an example, take Counter Strike, 
 where the placement of the bomb changes the player's immediate goals; or tag, where the person who
-is "it" has a different set of goals than everyone else, and is in a different state.)
+is ``it" has a different set of goals than everyone else, and is in a different state.)
 
 \section{Creating a new game}
 Creating a new game is straightforward, though there are some pitfalls if one is not careful.  I've
