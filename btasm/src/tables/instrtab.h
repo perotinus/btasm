@@ -6,7 +6,7 @@
  * 4/11/12 - J. MacMillan
  *******************************************/
 
-#include "userdef_y.tab.h"
+#include "../userdef_y.tab.h"
 
 char instrtab[512];
 

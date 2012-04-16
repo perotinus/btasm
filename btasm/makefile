@@ -1,20 +1,25 @@
-btasm: lex btasm.c map.c toktab graph.c
-	gcc -g3 -o btasm lex.yy.c y.tab.c btasm.c map.c graph.c compile.c -lfl -ly
+btasm: lex yacc src/btasm.c src/map.c toktab src/graph.c
+	gcc -g3 -o btasm src/lex.yy.c src/y.tab.c src/btasm.c src/map.c src/graph.c src/compile.c -lfl -ly
 
-yacc: btasm_ubi.y
-	yacc -d btasm_ubi.y
+yacc: src/btasm_ubi.y
+	yacc -d src/btasm_ubi.y
+	mv y.tab.c src
+	mv y.tab.h src
 
-lex: btasm_ubi.lex yacc
-	lex btasm_ubi.lex
+lex: src/btasm_ubi.lex yacc
+	lex -o src/lex.yy.c src/btasm_ubi.lex 
 
-toktab: toktab.h_tmpl toktab.pl yacc
-	cp toktab.h_tmpl toktab.h
-	perl toktab.pl
+toktab: src/tables/toktab.h_tmpl src/tables/toktab.pl yacc
+	cp src/tables/toktab.h_tmpl src/tables/toktab.h
+	perl src/tables/toktab.pl
 
-test: test.pl btasm
-	perl test.pl
+test: utils/test.pl btasm
+	perl utils/test.pl
 
-.PHONY: test
+clean: clean
+	rm src/y.tab.* btasm 
+
+.PHONY: test clean
 
 ###############################
 dot: graph.gv

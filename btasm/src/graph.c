@@ -11,7 +11,7 @@
 
 #include "graph.h"
 #include "y.tab.h"
-#include "toktab.h"
+#include "tables/toktab.h"
 #include <stdlib.h>
 
 /**

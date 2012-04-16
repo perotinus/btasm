@@ -5,7 +5,7 @@
  ***********************************/
 
 #include "btasm.h"
-#include "instrtab.h"
+#include "tables/instrtab.h"
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>

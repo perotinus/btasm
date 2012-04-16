@@ -1,3 +1,4 @@
+#!/usr/bin/env perl
 ###########################
 #User options
 my $tab = '    ';    #A tab - change to your desired number of spaces

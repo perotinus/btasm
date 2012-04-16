@@ -1,7 +1,7 @@
 #ifndef RESTAB_H
 #define RESTAB_H
 
-#include "btasm.h"
+#include "../btasm.h"
 
 char *resources[RES_COUNT];
 

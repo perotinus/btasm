@@ -14,7 +14,7 @@
 #include "map.h"
 #include "graph.h"
 #include "compile.h"
-#include "restab.h"
+#include "tables/restab.h"
 
 
 #define die(x)  exit(fprintf(stderr, "%s", x));

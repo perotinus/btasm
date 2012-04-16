@@ -1,0 +1,6 @@
+beautifier.pl -- a code beautifier for BTASM source files.  
+    Good for making UbiSoft-given source files readable.
+
+test.pl -- a testing script scaffold.  Not as useful anymore.
+test.sh -- compare the results of the compiler with the 
+    source given by UbiSoft.

@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 
-open (FILE, 'y.tab.h');
+open (FILE, 'src/y.tab.h');
 
 my $state = 0;
 my %hash = ();
@@ -37,7 +37,7 @@ while (<FILE>) {
 
 }
  
-open (OFILE, ">>toktab.h");
+open (OFILE, ">>src/tables/toktab.h");
 
 foreach my $key (sort keys %hash) {
     print OFILE "\ttoktab[" , $key , "] = \"", $hash{$key} , "\";\n"

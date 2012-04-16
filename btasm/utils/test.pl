@@ -2,7 +2,7 @@
 
 use Term::ANSIColor;
 
-my $prog = "./lexer";
+my $prog = "./btasm";
 
 
 #----------------
