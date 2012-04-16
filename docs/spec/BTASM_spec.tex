@@ -1414,8 +1414,18 @@ the arithmetic on a machine designed to perform addition, subtraction, multiplic
 
 \section{Timers}
 The BTASM language only has provisions for 2.55 second timers.  This may not be enough for what is
-required in a more complicated game.  
+required in a more complicated game.  This example demonstrates how to create a longer timer.
+This is a convenient way to create a countdown, and is the basic method I use to allow for longer
+arming and diffusing times in the Counter Strike case study.
 
+\section{Next steps}
+If you understand these examples, the best way to get a better grasp of the language is to look at
+more extensive source files.  The files that are provided by UbiSoft are not that easy to read --
+they are not indented and there is too much white space.  The btasm compiler distribution includes
+a script, beautifier.pl, that blindly indents and removes extra lines from BTASM source files.
+
+The BTASM source files are helpful for figuring out how to write a program in the limited 
+device environment of the gun. 
 
 \begin{figure}[h]
 \begin{lstlisting}
@@ -1425,15 +1435,15 @@ STATE init
 FIRST_STATE
 
 EVENT ENTER_STATE
-TIMER 100			//1 second timer
-SET timer_len 10	//10 times (so 10 seconds)
+    TIMER 100			//1 second timer
+    SET timer_len 10	//10 times (so 10 seconds)
 END_EVENT
 
 EVENT TIMER
-IF timer_len SUP 0
-	DEC timer_len
-	HUD_DIGIT timer_len //Create a countdown timer
-END_IF
+    IF timer_len SUP 0
+	    DEC timer_len
+	    HUD_DIGIT timer_len //Create a countdown timer
+    END_IF
 END_EVENT
 
 END_STATE
