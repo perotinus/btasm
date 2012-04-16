@@ -1236,4 +1236,211 @@ The variable table is created by a sequence of \texttt{VAR} commands at the
 \subsection{Function/state tables}
 \label{sec:funstatetables}
 
+\chapter{The Game Master}
+The bytecode on the guns is useless without the Game Master to set up and control the games.  While
+the majority of the gameplay work is done on the guns in the course of an actual round, the computer
+can play an essential role, especially in games where players change roles, or aspects of the 
+gamplay change depending on the current state of the game.  (As an example, take Counter Strike, 
+where the placement of the bomb changes the player's immediate goals; or tag, where the person who
+is "it" has a different set of goals than everyone else, and is in a different state.)
+
+\section{Creating a new game}
+Creating a new game is straightforward, though there are some pitfalls if one is not careful.  I've
+outlined the process for creating a new game more thoroughly 
+\chapter{Examples of BTASM Source Code}
+
+\section{Arithmetic}
+Conspicuously absent from the BTASM language is any way to do arithmetic.  This is typically 
+unnecessary in the context of laser tag games -- however, it is perhaps useful to see how one could
+add arithmetic functionalities.  
+These arithmetic functions are not foolproof - it is certainly possible for an event to occur that
+causes the values in these functions to be blown.  The effects of timer interrupts on running 
+functions has not yet been tested.???
+
+\subsection{Addition/Subtraction}
+These functions are analogous, and could be designed in other ways.  This design requires two 
+specially declared argument variables, and returns its value in the first of these argument 
+variables.  The subtraction function returns 1 in its second argument if there was an underflow.
+\\\\
+\begin{figure}[h]
+\begin{lstlisting}
+VAR arg1	//Argument passing variables
+VAR arg2
+VAR add_temp1	//Special temporary variables
+VAR add_temp2	//for the add function
+
+
+FUNCTION add
+
+	SET add_temp1 arg1
+	SET add_temp2 arg2
+	add_h
+	SET arg1 add_temp1
+	
+END_FUNCTION
+
+//Helper function
+FUNCTION add_h
+
+	IF add_temp2 SUP 0
+		INC add_temp1
+		DEC add_temp2
+		add_h
+	END_IF
+	
+END_FUNCTION
+\end{lstlisting}
+\caption{An addition function} 
+\end{figure}
+
+\begin{figure}[h]
+\begin{lstlisting}
+VAR arg1	//Argument passing variables
+VAR arg2
+VAR sub_temp1	//Special temporary variables
+VAR sub_temp2	//for the sub function
+
+
+FUNCTION add
+
+	SET sub_temp1 arg1
+	SET sub_temp2 arg2
+	sub_h
+	SET arg1 sub_temp1
+	SET arg2 sub_temp2
+	
+END_FUNCTION
+
+//Helper function
+FUNCTION sub_h
+
+	IF sub_temp2 SUP 0
+		IF sub_temp1 SUP 0
+			DEC sub_temp1
+			DEC sub_temp2
+			add_h
+		ELSE
+			SET sub_temp2 1
+		END_IF
+	END_IF
+	
+END_FUNCTION
+\end{lstlisting}
+\caption{A subtraction function (that prevents underflow)} 
+\end{figure}
+%Notice that, though these functions are recursive, there is no stack to blow, so there is no
+%slowdown due to tracking out through a deeply-nested stack.
+
+\subsection{Multiplication/Division}
+Multiplication and division are more difficult.  For these, we assume that we have the \texttt{add}
+and \texttt{sub} functions declared above available, and that\texttt{arg1} and \texttt{arg2} are
+the argument variables.  The multiplication function returns its value in the first argument; the
+division function returns the quotient in the second argument and the remainder in the first 
+argument.
+
+\begin{figure}[h]
+\begin{lstlisting}
+VAR arg1	//Argument passing variables
+VAR arg2
+VAR mult_temp1	//Special temporary variables
+VAR mult_temp2	//for the mult function
+VAR mult_temp3
+
+FUNCTION mult
+
+	SET mult_temp1 arg1
+	SET mult_temp2 arg2
+	SET mult_temp3 0
+	mult_h
+	SET arg1 mult_temp3
+	
+END_FUNCTION
+	
+	
+FUNCTION mult_h
+
+	IF mult_temp2 SUP 0
+		SET arg1 mult_temp3
+		SET arg2 mult_temp1
+		DEC mult_temp2
+		add
+		SET mult_temp3 arg1
+		mult_h
+	END_IF
+	
+END_FUNCTION
+\end{lstlisting}
+\caption{A multiplication function} 
+\end{figure}
+
+
+
+\begin{figure}[h]
+\begin{lstlisting}
+VAR arg1	//Argument passing variables
+VAR arg2
+VAR mult_temp1	//Special temporary variables
+VAR mult_temp2	//for the mult function
+VAR mult_temp3
+
+FUNCTION mult
+
+	SET mult_temp1 arg1
+	SET mult_temp2 arg2
+	SET mult_temp3 0
+	mult_h
+	SET arg1 mult_temp3
+	
+	
+END_FUNCTION
+	
+	IF mult_temp2 SUP 0
+		SET arg1 mult_temp3
+		SET arg2 mult_temp1
+		DEC mult_temp2
+		add
+		SET mult_temp3 arg1
+	END_IF
+	
+END_FUNCTION
+\end{lstlisting}
+\caption{A multiplication function} 
+\end{figure}
+
+From this point, it would certainly be possible to create other, more complicated arithmetic
+functions.  This is not usually a useful exercise, however -- in practice, it makes more sense to
+have a set of \texttt{SEND} and \texttt{RECEIVE} variables that communicate with the GM and do
+the arithmetic on a machine designed to perform addition, subtraction, multiplication and division.
+
+\section{Timers}
+The BTASM language only has provisions for 2.55 second timers.  This may not be enough for what is
+required in a more complicated game.  
+
+
+\begin{figure}[h]
+\begin{lstlisting}
+VAR timer_len	//Timer length in seconds
+
+STATE init
+FIRST_STATE
+
+EVENT ENTER_STATE
+TIMER 100			//1 second timer
+SET timer_len 10	//10 times (so 10 seconds)
+END_EVENT
+
+EVENT TIMER
+IF timer_len SUP 0
+	DEC timer_len
+	HUD_DIGIT timer_len //Create a countdown timer
+END_IF
+END_EVENT
+
+END_STATE
+	
+\end{lstlisting}
+\caption{A longer timer, with a countdown} 
+\end{figure}
+
+\chapter{Counter Strike - A Case Study}
 \end{document}
