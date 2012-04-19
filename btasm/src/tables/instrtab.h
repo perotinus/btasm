@@ -31,6 +31,7 @@ void fillinstrtab() {
 	instrtab[FLASH_GREEN]       = 0xd5;
 	instrtab[FLASH_RED]         = 0xd4;
 	instrtab[FUN]               = 0xd0;
+    instrtab[GOTO]              = 0xc3; //0xc1?????
 	instrtab[HUD_DIGIT]         = 0xcd;
 	instrtab[HUD_DIGIT_OFF]     = 0xd6;
 	instrtab[HUD_ICON]          = 0xcf;
@@ -52,8 +53,7 @@ void fillinstrtab() {
 	instrtab[TIMER]             = 0xc9;
 	instrtab[VAR]               = 0xcc;
 	
-    /*instrtab[GOTO]              = 0xc3; //0xc1?????
-	instrtab[SET]               = 0xc0;
+	/*instrtab[SET]               = 0xc0;
 	instrtab[SET_HARNESS]       = 0xdd; 
 	instrtab[INC]               = 0xc2;
 	instrtab[DEC]               = 0xc1;
@@ -107,6 +107,7 @@ void fillinstrtab() {
 	instrtab[TIMER]             = 0xc9;
 	//instrtab[DATA_CHANGE]       = ;
 	//instrtab[ID] = ;*/
+
 }
 
 #endif
