@@ -419,6 +419,9 @@ Compare two values and branch depending on the result of the comparison.
 \item A2 = comparison function (SUP, INF, COMP, or DIFF) (see table \ref{sec:compconsts})
 \item A3 = integer or identifier to variable to compare with (right side)
 \end{itemize}
+NB - if the \texttt{ELSE} branch is empty, do not include the material in angle brackets.
+To have a negated \texttt{IF} statement, leave the \texttt{IF} branch empty and insert
+code in the \texttt{ELSE} branch.
 
 \subsubsection{[ID]}
 Call a function.
@@ -485,15 +488,25 @@ Run the device motor.
 \end{itemize}
 
 %FLASH COLORS
-\subsubsection{FLASH\_RED}
+\subsubsection{FLASH\_RED [INT]}
 Flash a red light.
 
-\subsubsection{FLASH\_GREEN}
+\begin{itemize}
+\item A1 = ???
+\end{itemize}
+\subsubsection{FLASH\_GREEN [INT]}
 Flash a green light.
 
-\subsubsection{FLASH\_ORANGE}
+\begin{itemize}
+\item A1 = ???
+\end{itemize}
+
+\subsubsection{FLASH\_ORANGE [INT]}
 Flash an orange light.  This is implemented by flashing a red then a green light.
 
+\begin{itemize}
+\item A1 = ???
+\end{itemize}
 
 %%%%%SND
 \subsubsection{SND [SNDID]}
@@ -752,7 +765,8 @@ Compare two values and branch depending on the result of the comparison.
 \item A6 = length of the ELSE branch of the conditional (can be 0x00)
 \end{itemize}
 NB - the two length arguments are placed just before the code that their associated branches contain.
-The language has no JMP capabilities, so the IF and ELSE branches must follow the IF instruction.
+Either of the branches can be empty - an empty IF branch is perfectly valid.
+The language has no JMP capabilities, so the IF and ELSE branches must directly follow the IF instruction.
 The ... in the instruction definition represent source code.  There is no need to specify the
 ending point of a branch - the length arguments handle the length.
 
@@ -824,11 +838,17 @@ Run the device motor.
 \end{itemize}
 
 %FLASH COLORS
-\subsubsection{0xd4 - FLASH\_RED}
+\subsubsection{0xd4 - FLASH\_RED [INT]}
 Flash a red light
+\begin{itemize}
+\item A1 = ??? 
+\end{itemize}
 
-\subsubsection{0xd5 - FLASH\_GREEN}
+\subsubsection{0xd5 - FLASH\_GREEN [INT]}
 Flash a green light
+\begin{itemize}
+\item A1 = ???
+\end{itemize}
 
 %%%%%SND
 \subsubsection{0xc5 - SND [0x00 | 0x01] [RESIDX] }
