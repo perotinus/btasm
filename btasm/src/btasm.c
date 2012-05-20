@@ -19,7 +19,7 @@
 
 #define die(x)  exit(fprintf(stderr, "%s", x));
 
-#define VERSION "btasm - the BattleTag assembler\nJ. MacMillan\nversion 0.1 (April 15, 2012)\n"
+#define VERSION "btasm - the BattleTag assembler\nJ. MacMillan\nversion 0.1.1 (May 20, 2012)\n"
 
 //Maps for the compiler.  The bytecode only uses integers to
 //reference variables, functions, resources and states.  This
@@ -54,6 +54,8 @@ int main(int argc, char ** argv) {
      
     int i; 
 
+    int javaMode = 0; //Set to 1 by -j flag; outputs code for Java usage
+
     //Initialize the maps for the parser/compiler
     vmap = create_map();    //Variables
     fmap = create_map();    //Functions
@@ -87,7 +89,7 @@ int main(int argc, char ** argv) {
     }
     yyin = fopen(argv[argc-1], "r");
     if (argc < 2 || !yyin) {
-        die("btasm [-c <fname>] [-g <fname>] [-td | -1 | -2] [-v] <source file>\n");
+        die("btasm [-j] [-c <fname>] [-g <fname>] [-td | -1 | -2] [-v] <source file>\n");
     } 
 
     fname = argv[argc-1];
@@ -137,6 +139,8 @@ int main(int argc, char ** argv) {
             parse1(stree);
         } else if (!strcmp("-2", arg)) {
             parse2(stree);
+        } else if (!strcmp("-j", arg)) {
+            javaMode = 1;
         } else if (!strcmp("-c", arg)) {
             parse1(stree);
             parse2(stree);
@@ -153,7 +157,14 @@ int main(int argc, char ** argv) {
             int i;
 
             //Make the lua beginning
-            fprintf(f,"bytecode = {\n");
+            if (!javaMode)
+                fprintf(f,"bytecode = {\n");
+            else //Make the java beginning
+                fprintf(f,"int bytecode[] = {\n\t");
+
+            //Keep track of the number of bytes that have been printed
+            int count = 1; //1 for the reslen  
+
             //Make the resource header
             fillrestab();
             int reslen = imap_flip_kvpairs(rmap);
@@ -161,18 +172,35 @@ int main(int argc, char ** argv) {
             fprintf(f, "0x%.2x, ", (unsigned char)reslen);
             for (i=0; i<reslen; i++) {
                 int j;
-                for (j=0; j<6; j++)
+                for (j=0; j<6; j++) {
                     fprintf(f, "0x%.2x, ", resources[rmap[i]][j]);
+
+                    if (javaMode && count++ == 16) {
+                        count = 0;
+                        fprintf(f, "\n\t");
+                    }
+                }
+
             }  
     
             for (i=0; i<len-1; i++) {
                 //if ((unsigned char)prog[i] == 0xfd)
                 //    fprintf(f, "\n");
                 //else
-                    fprintf(f, "0x%.2x, ", (unsigned char)prog[i]);
+                fprintf(f, "0x%.2x, ", (unsigned char)prog[i]);
+           
+                if (javaMode && count++ == 16) {
+                    count = 0;
+                    fprintf(f, "\n\t");
+                }
+
             }
 
-            fprintf(f, "0x%.2x};\nreturn bytecode;\n", (unsigned char)prog[len-1]);
+            if (!javaMode) //Lua mode
+                fprintf(f, "0x%.2x};\nreturn bytecode;\n", (unsigned char)prog[len-1]);
+            else           //Java mode
+                fprintf(f, "0x%.2x\n};", (unsigned char)prog[len-1]);
+
             fclose(f);
         } else {
             fprintf(stderr, "btasm:");
