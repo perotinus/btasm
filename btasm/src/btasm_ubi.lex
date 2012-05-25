@@ -211,5 +211,6 @@ int hatoi(char *s) {
     }
 
     //printf("%s to 0x%x", s, val);
+    return val;
 
 }
