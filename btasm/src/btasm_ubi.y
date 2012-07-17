@@ -10,7 +10,7 @@
 node *cr_node(int type, int nops, ...);
 node *int_node(int i);
 node *id_node(char *s);
-void yyerror(char *s, ...);
+void yyerror(const char *s, ...);
 void lyyerror(YYLTYPE t, char *s, ...);
 
 map vmap;   //Variables 
@@ -302,7 +302,7 @@ branch:
 
  
 void
-yyerror(char *s, ...)
+yyerror(const char *s, ...)
 {
   va_list ap;
   va_start(ap, s);
